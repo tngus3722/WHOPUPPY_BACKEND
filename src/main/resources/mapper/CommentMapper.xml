@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whopuppy.mapper.CommentMapper">
+
+    <sql id="commentColumns">
+        article_id
+		, content
+		, user_id
+    </sql>
+
+    <insert id="insertComment">
+        INSERT INTO whopuppy.animal_comment (article_id, content, user_id )
+        VALUES (#{article_id}, #{content}, #{user_id})
+    </insert>
+
+    <select id="selectCommentDetail" parameterType="long" resultType="com.whopuppy.domain.CommentDTO">
+        SELECT *  FROM animal_comment
+        WHERE is_deleted = 0 AND id = #{id}
+    </select>
+
+    <update id="updateComment" parameterType="com.whopuppy.domain.CommentDTO">
+        UPDATE animal_comment
+        SET updated_at = NOW() , content = #{content} , user_id = #{user_id}
+        WHERE  id = #{id}
+    </update>
+
+    <update id="deleteComment" parameterType="long">
+        UPDATE animal_comment
+        SET is_deleted = 1
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectCommentList" parameterType="long" resultType="com.whopuppy.domain.CommentDTO">
+        SELECT * FROM whopuppy.animal_comment
+        WHERE is_deleted = 0 AND article_id = #{article_id}
+        ORDER BY id DESC, created_at DESC
+    </select>
+
+    <select id="selectCommentTotalCount" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM animal_comment
+        WHERE is_deleted = 0 AND article_id = #{article_id}
+    </select>
+
+    <select id="isCommentCreated" resultType="Long">
+        SELECT id FROM animal_comment
+        WHERE  id = #{id} AND is_deleted = 0;
+    </select>
+
+</mapper>

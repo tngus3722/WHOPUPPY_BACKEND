@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.whopuppy.mapper.SnackMapper">
+
+
+    <insert id="postArticleImage">
+        INSERT INTO whopuppy.s3_url(image_url) VALUES (#{url});
+    </insert>
+    <insert id="insertImage">
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(images)">
+                <foreach collection="images" item="i" separator="">
+                    INSERT INTO whopuppy.snack_image(snack_id, image_url) VALUES ( #{id}, #{i} );
+                </foreach>
+            </when>
+            <otherwise>
+                SELECT 1 FROM DUAL WHERE false;
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="postArticle" resultType="Long">
+        INSERT INTO whopuppy.snack(title, content, thumbnail, user_id) VALUES (#{title} , #{content},#{thumbnail} , #{user_id});
+        SELECT LAST_INSERT_ID();
+    </select>
+
+    <select id="getAllSnackArticles" resultType="com.whopuppy.domain.snack.SnackArticle">
+        SELECT
+        <include refid="whopuppy_snack">
+            <property name="alias" value="s."/>
+            <property name="prefix" value=""/>
+        </include>,
+        <include refid="whopuppy_snack_user">
+            <property name="alias" value="u."/>
+            <property name="prefix" value=""/>
+        </include>
+        FROM whopuppy.snack AS s
+        JOIN whopuppy.user AS u
+        ON s.user_id = u.id
+        WHERE s.is_deleted = 0
+        ORDER BY s.id DESC
+        LIMIT #{cursor}, #{limit};
+
+    </select>
+    <sql id ="whopuppy_snack">
+        ${alias}id AS ${prefix}id
+		,${alias}user_id AS ${prefix}user_id
+		,${alias}title AS ${prefix}title
+		,${alias}content AS ${prefix}content
+        ,${alias}thumbnail AS ${prefix}thumbnail
+        ,${alias}is_deleted AS ${prefix}is_deleted
+        ,${alias}created_at AS ${prefix}created_at
+        ,${alias}updated_at AS ${prefix}updated_at
+    </sql>
+    <sql id="whopuppy_snack_user">
+        ${alias}profile_image_url AS ${prefix}profile_image_url
+		,${alias}nickname AS ${prefix}nickname
+    </sql>
+
+
+</mapper>

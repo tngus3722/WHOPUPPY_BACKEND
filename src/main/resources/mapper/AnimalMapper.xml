@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whopuppy.mapper.AnimalMapper">
+
+    <insert id="insertAnimal" parameterType="java.util.Map">
+        insert ignore Into whopuppy.animal_list (sexCd, kindCd, noticeNo, careAddr, processState, noticeSdt, weight, chargeNm, desertionNo, careNm, careTel, happenPlace, officetel, orgNm, filename, popfile, noticeEdt, neuterYn, specialMark, colorCd, happenDt, age)
+        VALUES
+        <foreach collection="animalList" item="item" separator=",">
+            (#{item.sexCd}, #{item.kindCd}, #{item.noticeNo}, #{item.careAddr}, #{item.processState}, #{item.processState}, #{item.weight}, #{item.chargeNm}, #{item.desertionNo}, #{item.careNm}, #{item.careTel}
+            , #{item.happenPlace}, #{item.officetel}, #{item.orgNm}, #{item.filename}, #{item.popfile}, #{item.noticeEdt}, #{item.neuterYn}, #{item.specialMark}, #{item.colorCd}, #{item.happenDt}, #{item.age})
+        </foreach>
+
+    </insert>
+</mapper>

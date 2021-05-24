@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.whopuppy.mapper.UserMapper">
+
+    <select id="getUserIdFromPhoneNumber"  resultType="Long">
+        SELECT id FROM whopuppy.user WHERE phone_number =#{phone_number}
+    </select>
+
+    <select id="getUserIdFromAccount"  resultType="com.whopuppy.domain.user.User">
+        SELECT id, account, password, nickname FROM whopuppy.user WHERE account =#{account}
+    </select>
+
+    <insert id="setAuthNumber">
+        INSERT INTO whopuppy.auth(phone_number,flag,secret,ip,expired_at)
+        VALUES ( #{phone_number},#{flag},#{secret},#{ip}, #{expired_at} )
+    </insert>
+    <delete id="deleteAllAuthNumber">
+        DELETE FROM whopuppy.auth WHERE flag = #{flag} and phone_number = #{phone_number}
+    </delete>
+
+    <select id="getSecret" resultType="com.whopuppy.domain.user.AuthNumber">
+        SELECT id, secret,flag, expired_at,ip
+        FROM whopuppy.auth
+        WHERE flag = #{flag} and phone_number = #{phone_number} and is_deleted = 0 ORDER BY id DESC LIMIT 1
+    </select>
+
+    <update id="setIs_authed">
+        UPDATE whopuppy.auth   SET is_authed = #{is_authed} WHERE id=#{id}
+    </update>
+    <select id="getAuthTrue" resultType="com.whopuppy.domain.user.AuthNumber">
+        SELECT id, secret,is_authed
+        FROM whopuppy.auth
+        WHERE is_authed = 1 and flag=#{flag} and phone_number = #{phone_number} and is_deleted = 0 ORDER BY id DESC LIMIT 1
+    </select>
+    <select id="getUserByNickName" resultType="String">
+        SELECT nickname FROM whopuppy.user WHERE nickname = #{nickname}
+    </select>
+
+    <update id ="expirePastAuthNumber">
+        UPDATE whopuppy.auth SET expired_at = #{expired_at}, is_deleted = 1
+        WHERE phone_number = #{phone_number} and ip = #{ip} and flag=#{flag} and is_deleted = 0
+    </update>
+
+    <select id="getAllAuthHistory" resultType="String">
+        SELECT secret FROM whopuppy.auth
+        WHERE flag = #{flag} and ip = #{ip} and phone_number = #{phone_number} and is_deleted = 0
+    </select>
+
+    <insert id="signUp">
+        INSERT INTO whopuppy.user (account, phone_number, password, nickname)
+        VALUES(#{account}, #{phone_number},#{password}, #{nickname})
+    </insert>
+
+    <select id="getSalt" resultType="String">
+        SELECT salt FROM whopuppy.user WHERE id=#{id}
+    </select>
+
+    <update id="setSalt">
+        UPDATE whopuppy.user SET salt = #{salt} WHERE id=#{user_id}
+    </update>
+    <update id="passwordUpdate">
+        UPDATE whopuppy.user SET password = #{password} WHERE account = #{account}
+    </update>
+    <update id="authNumberSoftDelete">
+        UPDATE whopuppy.auth SET is_deleted = 1 WHERE id=#{id}
+    </update>
+
+    <select id="authNumberAllSoftDeleteAfterUse" resultType="Integer" >
+        SELECT COUNT(*) FROM whopuppy.auth WHERE phone_number = #{phoneNumber} and ip = #{ip} and created_at BETWEEN #{start} AND #{end}
+    </select>
+
+
+
+    <select id="getMe" resultMap="userAll">
+        SELECT
+        <include refid="userList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="user."/>
+        </include>
+        FROM whopuppy.user WHERE is_deleted=0 AND id = #{id} LIMIT 1
+    </select>
+    <select id="getRole" resultType="String">
+        SELECT role.role FROM whopuppy.user AS user
+        JOIN whopuppy.admin AS admin
+        ON user.id = admin.user_id
+        JOIN whopuppy.admin_role AS role
+        ON admin.admin_role_id = role.id
+        WHERE user.id = #{id}
+        LIMIT 1
+    </select>
+    <select id="getAuthority" resultType="com.whopuppy.domain.user.Authority">
+        SELECT
+        <include refid="authorityList">
+            <property name="prefix" value=""/>
+            <property name="alias" value="authority."/>
+        </include>
+        FROM whopuppy.admin AS admin
+        JOIN whopuppy.admin_authority AS authority
+        ON admin.admin_authority_id = authority.id
+        WHERE admin.user_id = #{id}
+    </select>
+
+    <resultMap id="userAll" type="com.whopuppy.domain.user.User">
+        <result column="id" property="id"/>
+        <result column="account" property="account"/>
+        <result column="nickname" property="nickname"/>
+        <result column="phone_number" property="phone_number"/>
+        <result column="profile_image_url" property="profile_image_url"/>
+        <result column="created_at" property="created_at"/>
+        <result column="updated_at" property="updated_at"/>
+        <association property="role" column="id" javaType="String" select="getRole"></association>
+        <collection column="id" property="authority" javaType="java.util.List" ofType="com.whopuppy.domain.user.Authority" select="getAuthority"> </collection>
+    </resultMap>
+    <sql id="userList">
+        ${alias}id AS ${prefix}id
+		,${alias}account AS ${prefix}account
+		,${alias}nickname AS ${prefix}nickname
+        ,${alias}phone_number AS ${prefix}phone_number
+		,${alias}profile_image_url AS ${prefix}profile_image_url
+        ,${alias}created_at AS ${prefix}created_at
+        ,${alias}updated_at AS ${prefix}updated_at
+    </sql>
+    <sql id="authorityList">
+        ${alias}id AS ${prefix}id
+		,${alias}authority AS ${prefix}authority
+    </sql>
+
+    <update id="setProfile">
+        UPDATE whopuppy.user SET profile_image_url = #{url} WHERE id = #{id} and is_deleted=0
+    </update>
+
+    <select id="getAuthorityById" resultType="String">
+        SELECT authority.authority  FROM whopuppy.user AS user JOIN whopuppy.admin AS admin
+        ON  admin.user_id = user.id
+        JOIN whopuppy.admin_authority AS authority
+        ON admin.admin_authority_id = authority.id
+        WHERE user.id = #{id};
+    </select>
+
+    <insert id="grantAuthority">
+        INSERT INTO whopuppy.admin(user_id, admin_authority_id, admin_role_id) VALUES(#{id}, #{flag}, 2)
+    </insert>
+
+    <delete id="deleteAuthority">
+        DELETE FROM whopuppy.admin WHERE user_id = #{id} and admin_authority_id = #{flag}
+    </delete>
+</mapper>

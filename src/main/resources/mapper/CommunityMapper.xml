@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.whopuppy.mapper.CommunityMapper">
+    
+    <select id="getBoards" resultType="com.whopuppy.domain.community.Board">
+        SELECT id, board FROM whopuppy.board;
+    </select>
+
+    <select id="getBoard" resultType="com.whopuppy.domain.community.Board">
+        SELECT id, board FROM whopuppy.board WHERE id = #{id};
+    </select>
+
+    <select id="getTargetArticle" resultType="Long">
+        SELECT id FROM whopuppy.article WHERE id = #{id} AND is_deleted = 0;
+    </select>
+
+    <select id="getTargetArticlePosted" resultType="Long">
+        SELECT id FROM whopuppy.article WHERE id = #{id}  AND is_deleted = 0;
+    </select>
+    <insert id="postArticleImage">
+        INSERT INTO whopuppy.s3_url(image_url) VALUES (#{url});
+    </insert>
+
+    <select id="postArticle" resultType="Long">
+        INSERT INTO whopuppy.article(board_id ,user_id, title, content, region, thumbnail) VALUES(#{board_id},#{user_id}, #{title}, #{content}, #{region}, #{thumbnail});
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(images)">
+                <foreach collection="images" item="i" separator="">
+                    UPDATE whopuppy.s3_url
+                    SET is_posted = 1
+                    WHERE image_url = #{i};
+                </foreach>
+            </when>
+        </choose>
+        SELECT LAST_INSERT_ID();
+    </select>
+
+    <insert id="insertImageId">
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(images)">
+                <foreach collection="images" item="i" separator="">
+                    INSERT INTO whopuppy.article_image(article_id, image_url) VALUES ( #{id}, #{i} );
+                </foreach>
+            </when>
+            <otherwise>
+                SELECT 1 FROM DUAL WHERE false;
+            </otherwise>
+        </choose>
+    </insert>
+
+    <update id="initS3UrlHistory">
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(images)">
+                <foreach collection="images" item="i" separator=";">
+                    UPDATE whopuppy.s3_url
+                    SET is_posted = 0
+                    WHERE image_url = #{i}
+                </foreach>
+            </when>
+            <otherwise>
+                SELECT 1 FROM DUAL WHERE false;
+            </otherwise>
+        </choose>
+    </update>
+    <update id="completePostArticle" >
+        UPDATE whopuppy.article
+        SET title = #{title}, content = #{content}, region = #{region}, thumbnail = #{thumbnail}
+        WHERE id = #{id};
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(images)">
+                <foreach collection="images" item="i" separator="">
+                    INSERT INTO whopuppy.article_image(article_id, image_url) VALUES ( #{id}, #{i} );
+                    UPDATE whopuppy.s3_url
+                    SET is_posted = 1
+                    WHERE image_url = #{i};
+                </foreach>
+            </when>
+        </choose>
+    </update>
+
+
+
+    <select id="getImageUrls" resultType="String">
+        SELECT image_url FROM whopuppy.article_image WHERE article_id = #{id}
+    </select>
+
+    <select id="getArticles" resultMap="whopuppy_article_resultMap">
+        SELECT
+        <include refid="whopuppy_article">
+            <property name="alias" value="a."/>
+            <property name="prefix" value="A_"/>
+        </include>,
+        <include refid="whopuppy_article_user">
+            <property name="alias" value="u."/>
+            <property name="prefix" value="U_"/>
+        </include>,
+        b.board as B_board
+        FROM whopuppy.article AS a
+        JOIN whopuppy.user AS u
+        ON a.user_id = u.id
+        JOIN whopuppy.board AS b
+        ON a.board_id = b.id
+        WHERE
+        a.board_id = #{boardId} AND a.is_deleted = 0
+        <choose>
+            <when test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(region)">
+                AND a.region = #{region}
+            </when>
+        </choose>
+        LIMIT #{cursor},#{limit}
+    </select>
+    <sql id ="whopuppy_article">
+        ${alias}id AS ${prefix}id
+		,${alias}board_id AS ${prefix}board_id
+		,${alias}user_id AS ${prefix}user_id
+		,${alias}title AS ${prefix}title
+		,${alias}content AS ${prefix}content
+		,${alias}region AS ${prefix}region
+        ,${alias}thumbnail AS ${prefix}thumbnail
+        ,${alias}is_deleted AS ${prefix}is_deleted
+        ,${alias}created_at AS ${prefix}created_at
+        ,${alias}updated_at AS ${prefix}updated_at
+    </sql>
+    <sql id="whopuppy_article_user">
+        ${alias}profile_image_url AS ${prefix}profile_image_url
+		,${alias}nickname AS ${prefix}nickname
+    </sql>
+    <sql id ="whopuppy_article_image">
+        ${alias}id AS ${prefix}id
+		,${alias}article_id AS ${prefix}article_id
+        ,${alias}image_url AS ${prefix}image_url
+		,${alias}is_deleted AS ${prefix}is_deleted
+		,${alias}created_at AS ${prefix}created_at
+    </sql>
+    <resultMap id="whopuppy_article_resultMap" type="com.whopuppy.domain.community.Article">
+        <result column="A_id" property="id"/>
+        <result column="A_board_id" property="board_id"/>
+        <result column="A_user_id" property="user_id"/>
+        <result column="A_title" property="title"/>
+        <result column="A_content" property="content"/>
+        <result column="A_region" property="region"/>
+        <result column="A_thumbnail" property="thumbnail"/>
+        <result column="A_is_deleted" property="is_deleted"/>
+        <result column="A_created_at" property="created_at"/>
+        <result column="A_updated_at" property="updated_at"/>
+        <result column="U_profile_image_url" property="profile_image_url"/>
+        <result column="U_nickname" property="nickname"/>
+        <result column="B_board" property="board"/>
+        <collection property="images"  column = "A_id" javaType="java.util.List" ofType="String" select="getArticleImages"/>
+    </resultMap>
+
+    <select id="getArticleImages" resultType="String">
+        SELECT image_url
+        FROM whopuppy.article_image WHERE article_id = #{id} and is_deleted = 0;
+    </select>
+
+
+    <select id="getArticleAuthor" resultType="Long">
+        SELECT user_id FROM whopuppy.article WHERE id = #{id}
+    </select>
+
+    <update id="hardDeleteArticle">
+        DELETE FROM whopuppy.article WHERE id = #{id};
+        DELETE FROM whopuppy.article_image WHERE article_id = #{id};
+        DELETE FROM whopuppy.article_comment WHERE article_id = #{id};
+    </update>
+
+    <delete id="initImages" >
+        DELETE FROM whopuppy.article_image WHERE article_id = #{id};
+    </delete>
+
+
+    <insert id="postComment">
+        INSERT INTO whopuppy.article_comment(article_id, user_id,content) VAlUES(#{article_id}, #{user_id}, #{content})
+    </insert>
+
+    <select id="getArticleComment" resultType="com.whopuppy.domain.community.ArticleComment">
+        SELECT a.id, a.article_id, a.user_id, u.nickname as user_nickname, a.content, a.created_at, a.updated_at
+        FROM whopuppy.article_comment AS a
+        JOIN whopuppy.user AS u
+        ON u.id = a.user_id
+        WHERE a.article_id = #{id} AND a.is_deleted = 0 AND u.is_deleted = 0;
+    </select>
+
+    <select id="getAuthorComment" resultType="Long">
+        SELECT user_id FROM whopuppy.article_comment WHERE id = #{commentId} AND article_id = #{id} AND is_deleted =0;
+    </select>
+
+    <update id="softDeleteComment">
+        UPDATE whopuppy.article_comment SET is_deleted = 1 WHERE id = #{commentId} AND article_id = #{id} AND is_deleted = 0;
+    </update>
+
+    <select id="getRegion" resultType="String">
+        SELECT region FROM whopuppy.region;
+    </select>
+</mapper>

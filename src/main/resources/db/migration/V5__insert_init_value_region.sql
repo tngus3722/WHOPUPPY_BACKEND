@@ -1,0 +1,17 @@
+INSERT IGNORE whopuppy.region(id, region) VALUES(1, "서울");
+INSERT IGNORE whopuppy.region(id, region) VALUES(2, "부산");
+INSERT IGNORE whopuppy.region(id, region) VALUES(3, "대구");
+INSERT IGNORE whopuppy.region(id, region) VALUES(4, "인천");
+INSERT IGNORE whopuppy.region(id, region) VALUES(5, "광주");
+INSERT IGNORE whopuppy.region(id, region) VALUES(6, "대전");
+INSERT IGNORE whopuppy.region(id, region) VALUES(7, "울산");
+INSERT IGNORE whopuppy.region(id, region) VALUES(8, "세종");
+INSERT IGNORE whopuppy.region(id, region) VALUES(9, "경기");
+INSERT IGNORE whopuppy.region(id, region) VALUES(10, "강원도");
+INSERT IGNORE whopuppy.region(id, region) VALUES(11, "충청북도");
+INSERT IGNORE whopuppy.region(id, region) VALUES(12, "충청남도");
+INSERT IGNORE whopuppy.region(id, region) VALUES(13, "전라북도");
+INSERT IGNORE whopuppy.region(id, region) VALUES(14, "전라남도");
+INSERT IGNORE whopuppy.region(id, region) VALUES(15, "경상북도");
+INSERT IGNORE whopuppy.region(id, region) VALUES(16, "경상남도");
+INSERT IGNORE whopuppy.region(id, region) VALUES(17, "제주도");
