@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
+// do not use
 @Component
 public class SesSender {
     @Resource
