@@ -40,3 +40,9 @@ view example
 
 ![community_blog](https://user-images.githubusercontent.com/32263898/119256807-69bc4c00-bbfd-11eb-94f2-25297dd484c5.PNG)
 
+
+5. 실시간 입양 가능 유기견 정보 
+- 안드로이드 구현 중 
+- 
+6. 견종 분석 
+- 안드로이드 구현 중 
