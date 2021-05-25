@@ -1,6 +1,7 @@
 package com.whopuppy.controller;
 
 import com.whopuppy.annotation.ValidationGroups;
+import com.whopuppy.annotation.Xss;
 import com.whopuppy.domain.CommentDTO;
 import com.whopuppy.response.BaseResponse;
 import com.whopuppy.service.CommentService;
@@ -15,10 +16,13 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping(value = "/comment")
 public class CommentController {
-
+    /***
+     * 백민수
+     */
     @Resource
     private CommentService commentService;
 
+    @Xss
     @PostMapping
     @ApiOperation(value = "댓글 작성", notes = "댓글 작성")
     public ResponseEntity commentInsert(@RequestBody @Validated(ValidationGroups.animalComment.class) CommentDTO commentDTO) throws Exception {
@@ -31,7 +35,7 @@ public class CommentController {
     public ResponseEntity commentRead(@RequestParam Long article_id) throws Exception {
         return new ResponseEntity(commentService.getCommentList(article_id), HttpStatus.OK);
     }
-
+    @Xss
     @PutMapping(value = "/{id}")
     @ApiOperation(value = "댓글 수정", notes = "댓글 수정")
     public ResponseEntity commentUpdate(@RequestBody @Validated(ValidationGroups.animalComment.class) CommentDTO commentDTO, @PathVariable Long id) throws Exception {

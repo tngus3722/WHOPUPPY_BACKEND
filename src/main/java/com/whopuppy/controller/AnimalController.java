@@ -15,6 +15,9 @@ import java.io.IOException;
 @RequestMapping(value = "/animal")
 public class AnimalController {
 
+    /***
+     * 백민수
+     */
     @Resource
     AnimalService animalService;
 
