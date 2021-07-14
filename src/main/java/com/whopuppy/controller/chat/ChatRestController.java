@@ -1,0 +1,86 @@
+package com.whopuppy.controller.chat;
+
+import com.whopuppy.annotation.Auth;
+import com.whopuppy.annotation.ValidationGroups;
+import com.whopuppy.domain.chat.ChatRoom;
+import com.whopuppy.domain.chat.ChatRoomMember;
+import com.whopuppy.domain.criteria.ChatRoomCriteria;
+import com.whopuppy.mapper.ChatRoomMapper;
+import com.whopuppy.service.ChatService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Authorization;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+
+import javax.annotation.Resource;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@RestController
+@RequestMapping(value = "/chat")
+public class ChatRestController {
+    @Autowired
+    @Qualifier("stompChatServiceImpl")
+    private ChatService chatService;
+    //삭제할것
+    @Resource
+    private ChatRoomMapper chatRoomMapper;
+
+    // 모든 채팅방 목록 반환
+    @GetMapping("/rooms")
+    @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
+    @ApiOperation(value = "채팅방 생성", notes = "채팅방 생성", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public List<ChatRoom> room(ChatRoomCriteria chatRoomCriteria) {
+        return chatService.findAllRoom();
+    }
+
+
+    // 채팅방 생성
+    @PostMapping("/room")
+    @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
+    @ApiOperation(value = "채팅방 생성", notes = "채팅방 생성", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity<ChatRoom> createRoom(@RequestBody @Validated(ValidationGroups.Create.class) ChatRoom chatRoom){
+        return new ResponseEntity<ChatRoom>(chatService.createRoom(chatRoom), HttpStatus.CREATED);
+    }
+    // 특정 채팅방 조회
+    @GetMapping("/room/{roomId}")
+    @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
+    @ApiOperation(value = "특정 채팅방 조회", notes = "채팅방 조회", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ChatRoom roomInfo(@PathVariable Long roomId) {
+        return chatService.findRoomById(roomId);
+    }
+
+    // 특정 채팅방-유저 조회
+    @GetMapping("/room/{roomId}/user/{userId}")
+    //@Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
+    //@ApiOperation(value = "특정 채팅방 조회", notes = "채팅방 조회", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity<ChatRoomMember> roomInfo(@PathVariable Long roomId, @PathVariable Long userId) {
+        return new ResponseEntity<ChatRoomMember>(chatService.findRoomUser(roomId, userId),HttpStatus.OK);
+    }
+
+    // 테스트
+    @PostMapping("/room/test")
+    public ResponseEntity<List<ChatRoomMember>> test(@ApiParam(value = "(required: start_time), example = 2020-01-01 00:00:00") @RequestParam(value="start_time",required = true, defaultValue = "#{T(java.time.LocalDateTime).now()}") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start_date) {
+        return new ResponseEntity<List<ChatRoomMember>>(chatService.test(Timestamp.valueOf(start_date)),HttpStatus.OK);
+    }
+
+    // 테스트
+    @PostMapping("/room/test2")
+    public ResponseEntity<List<ChatRoom>> test2() {
+        return new ResponseEntity<List<ChatRoom>>(chatRoomMapper.getChatRooms(1L),HttpStatus.OK);
+    }
+    // 테스트
+    @PostMapping("/room/test3")
+    public ResponseEntity<ChatRoom> test3() {
+        return new ResponseEntity<ChatRoom>(chatRoomMapper.getChatRoom(1L),HttpStatus.OK);
+    }
+
+}

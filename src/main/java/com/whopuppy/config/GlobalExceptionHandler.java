@@ -75,7 +75,6 @@ public class GlobalExceptionHandler {
 			slack = true;
 		}
 
-
 		if(slack.equals(true)){
 			sendSlackNoti(e,handlerMethod);
 		}

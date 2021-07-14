@@ -133,6 +133,19 @@
 		,${alias}is_deleted AS ${prefix}is_deleted
 		,${alias}created_at AS ${prefix}created_at
     </sql>
+    <resultMap id="whopuppy_article_only" type="com.whopuppy.domain.community.Article">
+        <result column="id" property="id"/>
+        <result column="board_id" property="board_id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="region" property="region"/>
+        <result column="thumbnail" property="thumbnail"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
     <resultMap id="whopuppy_article_resultMap" type="com.whopuppy.domain.community.Article">
         <result column="A_id" property="id"/>
         <result column="A_board_id" property="board_id"/>
@@ -141,9 +154,9 @@
         <result column="A_content" property="content"/>
         <result column="A_region" property="region"/>
         <result column="A_thumbnail" property="thumbnail"/>
-        <result column="A_is_deleted" property="is_deleted"/>
-        <result column="A_created_at" property="created_at"/>
-        <result column="A_updated_at" property="updated_at"/>
+        <result column="A_is_deleted" property="isDeleted"/>
+        <result column="A_created_at" property="createdAt"/>
+        <result column="A_updated_at" property="updatedAt"/>
         <result column="U_profile_image_url" property="profile_image_url"/>
         <result column="U_nickname" property="nickname"/>
         <result column="B_board" property="board"/>

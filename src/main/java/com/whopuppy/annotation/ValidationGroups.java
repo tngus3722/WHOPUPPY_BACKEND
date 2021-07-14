@@ -12,17 +12,22 @@ import javax.validation.groups.Default;
 public final class ValidationGroups {
 
     private ValidationGroups() { }
+    public interface Create extends  Default{};
+    public interface Read extends  Default{};
+    public interface Update extends  Default{};
+    public interface Delete extends  Default{};
 
-    public interface signUp extends  Default{};
-    public interface logIn extends Default{};
-    public interface sendSms extends Default{};
-    public interface configSms extends Default{};
-    public interface findPassword extends Default{};
-    public interface nicknameCheck extends  Default{};
-    public interface accountCheck extends  Default{};
-    public interface authority extends Default{};
-    public interface postCommunity extends Default{};
-    public interface postComment extends Default{};
+    public interface signUp extends  Create{};
+    public interface logIn extends Read{};
+    public interface sendSms extends Create{};
+    public interface configSms extends Update{};
+    public interface findPassword extends Update{};
+    public interface nicknameCheck extends  Read{};
+    public interface accountCheck extends  Read{};
+    public interface authority extends Create{};
+    public interface postCommunity extends Create{};
+    public interface postComment extends Create{};
     public interface animalComment extends Default{};
     public interface animalList extends Default{};
+
 }

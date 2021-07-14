@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.whopuppy.mapper.ChatMessageMapper">
+    <select id="getChatMessageList" resultMap="ChatMessage">
+
+    </select>
+
+    <select id="getChatMessage" resultMap="ChatMessage">
+
+    </select>
+
+    <resultMap id="ChatMessage" type="com.whopuppy.domain.chat.ChatMessage">
+        <result column="id" property="id"/>
+        <result column="chat_room_id" property="chatRoomId"/>
+        <result column="send_user_id" property="sendUserId"/>
+        <result column="message" property="message"/>
+        <result column="read_count" property="readCount"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+
+    </resultMap>
+
+    <sql id="column-list">
+			${alias}ID AS ${prefix}ID
+			,${alias}CHAT_ROOM_ID AS ${prefix}CHAT_ROOM_ID
+            ,${alias}SEND_USER_ID AS ${prefix}SEND_USER_ID
+            ,${alias}MESSAGE AS ${prefix}MESSAGE
+            ,${alias}READ_COUNT AS ${prefix}READ_COUNT
+			,${alias}IS_DELETED AS ${prefix}IS_DELETED
+			,${alias}CREATED_AT AS ${prefix}CREATED_AT
+			,${alias}UPDATED_AT AS ${prefix}UPDATED_AT
+	</sql>
+</mapper>

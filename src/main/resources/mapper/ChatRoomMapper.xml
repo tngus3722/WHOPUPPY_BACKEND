@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.whopuppy.mapper.ChatRoomMapper">
+    <select id="getChatRooms" resultMap="chatRoomsWithChatMessage">
+        SELECT
+        <include refid="column-list">
+            <property name="prefix" value=""/>
+            <property name="alias" value="CR."/>
+        </include>
+        ,
+        <include refid="com.whopuppy.mapper.ChatMessageMapper.column-list">
+            <property name="prefix" value="CM_"/>
+            <property name="alias" value="CM."/>
+        </include>
+        ,
+        <include refid="com.whopuppy.mapper.CommunityMapper.whopuppy_article">
+            <property name="prefix" value="AR_"/>
+            <property name="alias" value="AR."/>
+        </include>
+        FROM chat_room AS CR
+        JOIN (SELECT
+            <include refid="com.whopuppy.mapper.ChatMessageMapper.column-list">
+                <property name="prefix" value=""/>
+                <property name="alias" value="CM."/>
+            </include>
+            FROM chat_message AS CM
+            JOIN (SELECT CRM.CHAT_ROOM_ID FROM chat_room_member AS CRM
+                WHERE CRM.USER_ID = #{user_id}) AS CRM
+            ON CM.CHAT_ROOM_ID = CRM.CHAT_ROOM_ID
+            ORDER BY CM.ID DESC LIMIT 1 ) AS CM
+        ON CR.ID = CM.CHAT_ROOM_ID
+        LEFT JOIN article AS AR
+        ON AR.ID = CR.ARTICLE_ID
+        ORDER BY CM.CREATED_AT
+
+    </select>
+
+
+    <select id="getChatRoom" resultMap="chatRoomsWithChatMessage">
+        SELECT
+        <include refid="column-list">
+            <property name="prefix" value=""/>
+            <property name="alias" value="CR."/>
+        </include>
+        ,
+        <include refid="com.whopuppy.mapper.ChatMessageMapper.column-list">
+            <property name="prefix" value="CM_"/>
+            <property name="alias" value="CM."/>
+        </include>
+        ,
+        <include refid="com.whopuppy.mapper.CommunityMapper.whopuppy_article">
+            <property name="prefix" value="AR_"/>
+            <property name="alias" value="AR."/>
+        </include>
+        FROM chat_room AS CR
+        JOIN (SELECT
+        <include refid="com.whopuppy.mapper.ChatMessageMapper.column-list">
+            <property name="prefix" value=""/>
+            <property name="alias" value="CM."/>
+        </include>
+        FROM chat_message AS CM
+        WHERE CM.CHAT_ROOM_ID = #{id}
+        ORDER BY CM.ID DESC LIMIT 1) AS CM
+        ON CM.CHAT_ROOM_ID = CR.ID
+
+        LEFT JOIN article AS AR
+        ON AR.ID = CR.ARTICLE_ID
+        WHERE CR.ID = #{id}
+        ORDER BY CM.CREATED_AT
+    </select>
+
+    <resultMap id="chatRoomsWithChatMessage" type="com.whopuppy.domain.chat.ChatRoom">
+        <result column="id" property="id"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="article_id" property="articleId"/>
+        <result column="member_count" property="memberCount"/>
+        <result column="name" property="name"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <association property="chatMessage" javaType="com.whopuppy.domain.chat.ChatMessage" columnPrefix="CM_" resultMap="com.whopuppy.mapper.ChatMessageMapper.ChatMessage" />
+        <association property="article" javaType="com.whopuppy.domain.community.Article" columnPrefix="AR_" resultMap="com.whopuppy.mapper.CommunityMapper.whopuppy_article_only" />
+    </resultMap>
+
+    <resultMap id="chatRoomsList" type="com.whopuppy.domain.chat.ChatRoom">
+        <result column="id" property="id"/>
+        <result column="create_user_id" property="createUserId"/>
+        <result column="article_id" property="articleId"/>
+        <result column="member_count" property="memberCount"/>
+        <result column="name" property="name"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+
+    </resultMap>
+
+    <sql id="column-list">
+			${alias}ID AS ${prefix}ID
+			,${alias}CREATE_USER_ID AS ${prefix}CREATE_USER_ID
+            ,${alias}ARTICLE_ID AS ${prefix}ARTICLE_ID
+            ,${alias}MEMBER_COUNT AS ${prefix}MEMBER_COUNT
+            ,${alias}NAME AS ${prefix}NAME
+			,${alias}IS_DELETED AS ${prefix}IS_DELETED
+			,${alias}CREATED_AT AS ${prefix}CREATED_AT
+			,${alias}UPDATED_AT AS ${prefix}UPDATED_AT
+	</sql>
+
+</mapper>
