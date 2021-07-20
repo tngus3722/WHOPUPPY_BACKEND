@@ -22,13 +22,6 @@ public class ChatController {
     @Qualifier("stompChatServiceImpl")
     private ChatService chatService;
 
-    @PostMapping
-    @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
-    //@ApiOperation(value = "방 생성 API", notes = "수제간식 레시피 글 조회", authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity<ChatRoom> createRoom(@RequestBody ChatRoom chatRoom){
-        ChatRoom room = chatService.createRoom(chatRoom);
-        return new ResponseEntity<ChatRoom>(room, HttpStatus.CREATED);
-    }
 
     @GetMapping(value="")
     //@Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)

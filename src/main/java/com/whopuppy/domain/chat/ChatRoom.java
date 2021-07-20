@@ -59,6 +59,10 @@ public class ChatRoom extends BaseEntity {
     @ApiModelProperty(hidden = true)
     private ChatMessage chatMessage;
 
+    @Transient
+    //메시지 수 카운트
+    @ApiModelProperty(hidden = true)
+    private Long messageCount;
     /*
     @Transient
     @ApiModelProperty(hidden = true)

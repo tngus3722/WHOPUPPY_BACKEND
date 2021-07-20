@@ -18,14 +18,16 @@
             <property name="prefix" value="AR_"/>
             <property name="alias" value="AR."/>
         </include>
+        ,CM.MESSAGE_COUNT AS MESSAGE_COUNT
         FROM chat_room AS CR
         JOIN (SELECT
             <include refid="com.whopuppy.mapper.ChatMessageMapper.column-list">
                 <property name="prefix" value=""/>
                 <property name="alias" value="CM."/>
             </include>
+            ,CM.ID-CRM.MESSAGE_ID AS MESSAGE_COUNT
             FROM chat_message AS CM
-            JOIN (SELECT CRM.CHAT_ROOM_ID FROM chat_room_member AS CRM
+            JOIN (SELECT CRM.CHAT_ROOM_ID, CRM.MESSAGE_ID FROM chat_room_member AS CRM
                 WHERE CRM.USER_ID = #{user_id}) AS CRM
             ON CM.CHAT_ROOM_ID = CRM.CHAT_ROOM_ID
             ORDER BY CM.ID DESC LIMIT 1 ) AS CM
@@ -59,6 +61,7 @@
             <property name="prefix" value=""/>
             <property name="alias" value="CM."/>
         </include>
+
         FROM chat_message AS CM
         WHERE CM.CHAT_ROOM_ID = #{id}
         ORDER BY CM.ID DESC LIMIT 1) AS CM
@@ -76,6 +79,7 @@
         <result column="article_id" property="articleId"/>
         <result column="member_count" property="memberCount"/>
         <result column="name" property="name"/>
+        <result column="message_count" property="messageCount"/>
         <result column="is_deleted" property="isDeleted"/>
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>

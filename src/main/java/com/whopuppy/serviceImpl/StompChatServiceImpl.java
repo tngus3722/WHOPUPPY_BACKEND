@@ -60,6 +60,8 @@ public class StompChatServiceImpl implements ChatService {
     @Transactional(readOnly = true)
     public List<ChatRoom> findAllRoom() {
         //페이지네이션 적용 X
+        System.out.println(userService.getLoginUserId());
+
         return chatRoomMapper.getChatRooms(userService.getLoginUserId());
     }
 

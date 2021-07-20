@@ -37,11 +37,11 @@ public class ChatRestController {
     // 모든 채팅방 목록 반환
     @GetMapping("/rooms")
     @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
-    @ApiOperation(value = "채팅방 생성", notes = "채팅방 생성", authorizations = @Authorization(value = "Bearer +accessToken"))
-    public List<ChatRoom> room(ChatRoomCriteria chatRoomCriteria) {
-        return chatService.findAllRoom();
+    @ApiOperation(value = "채팅방 목록 출력", notes = "채팅방 목록 출력", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity<List<ChatRoom>> room()
+    {
+        return new ResponseEntity<List<ChatRoom>>(chatService.findAllRoom(),HttpStatus.OK);
     }
-
 
     // 채팅방 생성
     @PostMapping("/room")
