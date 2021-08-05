@@ -4,6 +4,7 @@ import com.whopuppy.domain.chat.ChatMessage;
 import com.whopuppy.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
@@ -22,13 +23,14 @@ public class ChatMessageController {
     @Autowired
     SimpMessageSendingOperations messageSendingOperations;
 
-
+//  pub/chat/message
     @MessageMapping("chat/message")
-    public void message(ChatMessage message, @Header(value = "access_token",defaultValue = "") String token){
+    public void message(ChatMessage message, @Header(value = "Authorization",defaultValue = "") String token){
+//    public void message(ChatMessage message){
 
+        System.out.println(message.getMessage());
         System.out.println(message.getChatRoomId());
-        System.out.println(message.getId());
-
+        System.out.println(token);
         //messageSendingOperations.convertAndSend("/sub/chat/room/"+message.getRoomId(),message);
     }
 

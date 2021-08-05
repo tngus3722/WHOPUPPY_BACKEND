@@ -24,7 +24,7 @@ CREATE TABLE if NOT EXISTS whopuppy.chat_room_member(
 CREATE TABLE if NOT EXISTS whopuppy.chat_message(
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     chat_room_id BIGINT NOT NULL,
-    send__user_id BIGINT NOT NULL,
+    send_user_id BIGINT NOT NULL,
     message TEXT NOT NULL,
     read_count INT NOT NULL,
     is_deleted TINYINT(1) DEFAULT 0,

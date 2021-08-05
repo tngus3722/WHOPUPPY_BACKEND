@@ -15,7 +15,6 @@ CREATE TABLE if NOT EXISTS whopuppy.user(
 
 create table if NOT EXISTS whopuppy.auth(
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    account VARCHAR(50) NOT NULL,
     phone_number VARCHAR(30) NOT NULL,
     flag INT NOT NULL,
     is_authed TINYINT DEFAULT 0,

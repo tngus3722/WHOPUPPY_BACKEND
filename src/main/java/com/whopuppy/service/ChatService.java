@@ -1,6 +1,7 @@
 package com.whopuppy.service;
 
 
+import com.whopuppy.domain.chat.ChatMessage;
 import com.whopuppy.domain.chat.ChatRoom;
 import com.whopuppy.domain.chat.ChatRoomMember;
 import com.whopuppy.domain.criteria.ChatRoomCriteria;
@@ -19,7 +20,9 @@ public interface ChatService {
 
     public ChatRoom createRoom(ChatRoom chatRoom);
 
-    public <T> void sendMessage(WebSocketSession session, T message);
+    public default <T> void sendMessage(WebSocketSession session, T message){};
+
+    public void sendMessage(ChatMessage message,String token);
 
     public boolean isBelong(String token);
 

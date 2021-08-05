@@ -1,6 +1,7 @@
 package com.whopuppy.serviceImpl;
 
 import com.whopuppy.annotation.ValidationGroups;
+import com.whopuppy.domain.chat.ChatMessage;
 import com.whopuppy.domain.chat.ChatRoom;
 import com.whopuppy.domain.chat.ChatRoomMember;
 import com.whopuppy.domain.criteria.ChatRoomCriteria;
@@ -15,6 +16,7 @@ import com.whopuppy.service.ChatService;
 import com.whopuppy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -49,6 +51,9 @@ public class StompChatServiceImpl implements ChatService {
 
     @Resource
     private ChatRoomMemberMapper chatRoomMemberMapper;
+
+    @Autowired
+    SimpMessageSendingOperations messageSendingOperations;
 
     @Override
     @Transactional(readOnly = true)
@@ -96,10 +101,11 @@ public class StompChatServiceImpl implements ChatService {
         return chatRoom;
     }
 
-    @Override
     @Transactional(readOnly = false)
-    public <T> void sendMessage(WebSocketSession session, T message) {
+    @Override
+    public void sendMessage(ChatMessage message, String token) {
 
+        //messageSendingOperations.convertAndSend("/sub/chat/users/"+message.getRoomId(),message);
     }
 
     @Override

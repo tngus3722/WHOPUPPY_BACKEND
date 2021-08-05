@@ -99,6 +99,8 @@
                 } else {
                     var params = new URLSearchParams();
                     params.append("name",this.room_name);
+                    //users추가해야댐.
+
                     axios.post('/chat/room', params,
                         {
                             headers: {
@@ -126,18 +128,21 @@
 
 
     function connect() {
-
+        var keyword = 'Authorization';
 
         // pub/sub event
-        ws.connect({'access_token': 'Bearer '+getToken()}, function(frame) {
+        ws.connect({'Authorization': 'Bearer '+getToken()}, function(frame) {
             ws.subscribe("/sub/chat/users/"+getUser(), function(message) {
                 console.log("이거 뭔데4");
                 var recv = JSON.parse(message.body);
                 vm.recvMessage(recv);
             },{
-                access_token: 'Bearer ' + getToken() //the token is a variable which holds the token
+                'Authorization': 'Bearer ' + getToken() //the token is a variable which holds the token
             });
-            //ws.send("/pub/chat/message", {}, JSON.stringify({type:'ENTER', roomId:vm.$data.roomId, sender:vm.$data.sender}));
+            ws.send("/pub/chat/message", {'Authorization': 'Bearer '+getToken()}, JSON.stringify({
+                chatRoomId:1,
+                message: "메시지"
+            }));
         }, function(error) {
             console.log("이거 뭔데5");
             if(reconnect++ <= 5) {

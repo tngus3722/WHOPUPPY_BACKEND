@@ -9,6 +9,7 @@ import com.whopuppy.service.UserService;
 import com.whopuppy.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -27,11 +28,14 @@ public class StompHandler implements ChannelInterceptor {
     @Qualifier("UserServiceImpl")
     private UserService userService;
 
+    @Value("${token.user.name}")
+    private String tokenUserName;
+
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
 
         StompHeaderAccessor headerAccessor= StompHeaderAccessor.wrap(message);
-        String accessToken = headerAccessor.getFirstNativeHeader("access_token");
+        String accessToken = headerAccessor.getFirstNativeHeader(tokenUserName);
         StompCommand command = headerAccessor.getCommand();
         System.out.println(command);
         System.out.println(message.toString());
@@ -42,7 +46,7 @@ public class StompHandler implements ChannelInterceptor {
 
         if (StompCommand.SUBSCRIBE.equals(command)) {
             System.out.println(headerAccessor.getFirstNativeHeader("destination"));
-
+            System.out.println(message.getHeaders().get("simpDestination"));
             User user = userService.getMe(accessToken);
 
             System.out.println(user.toString());
