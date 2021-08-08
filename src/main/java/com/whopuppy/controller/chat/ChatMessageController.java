@@ -1,5 +1,6 @@
 package com.whopuppy.controller.chat;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.whopuppy.domain.chat.ChatMessage;
 import com.whopuppy.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +26,13 @@ public class ChatMessageController {
 
 //  pub/chat/message
     @MessageMapping("chat/message")
-    public void message(ChatMessage message, @Header(value = "Authorization",defaultValue = "") String token){
+    public void message(ChatMessage message, @Header(value = "Authorization",defaultValue = "") String token) throws JsonProcessingException {
 //    public void message(ChatMessage message){
 
         System.out.println(message.getMessage());
         System.out.println(message.getChatRoomId());
         System.out.println(token);
+        chatService.sendMessage(message, token);
         //messageSendingOperations.convertAndSend("/sub/chat/room/"+message.getRoomId(),message);
     }
 

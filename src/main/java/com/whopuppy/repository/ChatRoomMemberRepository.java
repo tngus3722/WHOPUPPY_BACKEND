@@ -3,6 +3,9 @@ package com.whopuppy.repository;
 import com.whopuppy.domain.chat.ChatRoomMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, Long> {
+import java.util.List;
 
+public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, Long> {
+    public ChatRoomMember findByUserIdAndChatRoomId(Long userId, Long chatRoomId);
+    public List<ChatRoomMember> findAllByChatRoomId(Long chatRoomId);
 }

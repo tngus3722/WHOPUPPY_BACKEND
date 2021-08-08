@@ -3,6 +3,8 @@ package com.whopuppy.controller.chat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.whopuppy.domain.chat.ChatMessage;
+import com.whopuppy.service.ChatService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -21,6 +23,11 @@ public class ChatKafkaController {
     @Resource
     KafkaTemplate<String,String> kafkaProducer;
 
+
+    @Resource
+    @Qualifier("stompChatServiceImpl")
+    private ChatService chatService;
+
     @GetMapping(value = "/test/send")
     public ResponseEntity<String> test() throws JsonProcessingException {
         ChatMessage chatMessage = new ChatMessage();
@@ -36,5 +43,7 @@ public class ChatKafkaController {
         System.out.println("스트링 : " + String.format("Consumed message : %s", message));
         ChatMessage chatMessage = new ObjectMapper().readValue(message,ChatMessage.class);
         System.out.println("클래스 : " + chatMessage.toString());
+        chatService.spreadMessage(chatMessage);
+
     }
 }

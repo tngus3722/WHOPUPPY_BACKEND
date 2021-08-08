@@ -1,6 +1,7 @@
 package com.whopuppy.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.whopuppy.domain.chat.ChatMessage;
 import com.whopuppy.domain.chat.ChatRoom;
 import com.whopuppy.domain.chat.ChatRoomMember;
@@ -22,13 +23,14 @@ public interface ChatService {
 
     public default <T> void sendMessage(WebSocketSession session, T message){};
 
-    public void sendMessage(ChatMessage message,String token);
+    public void sendMessage(ChatMessage message,String token) throws JsonProcessingException;
 
     public boolean isBelong(String token);
 
     public boolean invite(Long chatRoomId, Long targetUserId);
     public boolean invite(User user, Long chatRoomId, Long targetUserId);
 
+    public void spreadMessage(ChatMessage message);
     //테스트용 나중에 지워
     public List<ChatRoomMember> test(Timestamp valueOf);
 }

@@ -1,21 +1,27 @@
 package com.whopuppy.serviceImpl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.whopuppy.annotation.ValidationGroups;
 import com.whopuppy.domain.chat.ChatMessage;
 import com.whopuppy.domain.chat.ChatRoom;
 import com.whopuppy.domain.chat.ChatRoomMember;
 import com.whopuppy.domain.criteria.ChatRoomCriteria;
 import com.whopuppy.domain.user.User;
+import com.whopuppy.enums.ErrorMessage;
+import com.whopuppy.exception.CriticalException;
 import com.whopuppy.mapper.ChatRoomMapper;
 
 import com.whopuppy.mapper.ChatRoomMemberMapper;
 import com.whopuppy.mapper.UserMapper;
+import com.whopuppy.repository.ChatMessageRepository;
 import com.whopuppy.repository.ChatRoomMemberRepository;
 import com.whopuppy.repository.ChatRoomRepository;
 import com.whopuppy.service.ChatService;
 import com.whopuppy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +39,9 @@ import java.util.*;
 @Service
 public class StompChatServiceImpl implements ChatService {
 
+    @Resource
+    KafkaTemplate<String,String> kafkaProducer;
+
     @Autowired
     @Qualifier("UserServiceImpl")
     private UserService userService;
@@ -49,6 +58,8 @@ public class StompChatServiceImpl implements ChatService {
     @Resource
     private ChatRoomMapper chatRoomMapper;
 
+    @Resource
+    private ChatMessageRepository chatMessageRepo;
     @Resource
     private ChatRoomMemberMapper chatRoomMemberMapper;
 
@@ -103,8 +114,24 @@ public class StompChatServiceImpl implements ChatService {
 
     @Transactional(readOnly = false)
     @Override
-    public void sendMessage(ChatMessage message, String token) {
+    public void sendMessage(ChatMessage chatMessage, String token) throws JsonProcessingException {
+        User me = userService.getMe(token);
 
+        ChatRoomMember chatRoomMember = chatRoomMemberRepo.findByUserIdAndChatRoomId(me.getId(), chatMessage.getChatRoomId());
+        //나중에 에러 종류 추가
+        if(chatRoomMember==null) throw new CriticalException(ErrorMessage.UNDEFINED_EXCEPTION);
+        ChatRoom chatRoom = chatRoomRepo.findById(chatMessage.getChatRoomId()).orElseThrow();
+
+        chatMessage.setSendUserId(me.getId());
+        chatMessage.setReadCount(chatRoom.getMemberCount()-1); //자기 자신의 읽음 처리 추가
+        chatMessageRepo.save(chatMessage);
+
+        chatRoomMember.setMessageId(chatMessage.getId());
+        chatRoomMemberRepo.save(chatRoomMember);
+
+
+
+        kafkaProducer.send("TOPIC", new ObjectMapper().writeValueAsString(chatMessage));
         //messageSendingOperations.convertAndSend("/sub/chat/users/"+message.getRoomId(),message);
     }
 
@@ -126,6 +153,16 @@ public class StompChatServiceImpl implements ChatService {
         // 유저 아이디 확인
         System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());
         return invite(chatRoomId, targetUserId);
+    }
+
+    @Override
+    public void spreadMessage(ChatMessage message) {
+        System.out.println("하이");
+        List<ChatRoomMember> chatRoomMemberList = chatRoomMemberRepo.findAllByChatRoomId(message.getChatRoomId());
+        for(ChatRoomMember chatRoomMember : chatRoomMemberList ){
+            messageSendingOperations.convertAndSend("/sub/chat/users/"+chatRoomMember.getUserId(),message);
+        }
+
     }
 
     @Override

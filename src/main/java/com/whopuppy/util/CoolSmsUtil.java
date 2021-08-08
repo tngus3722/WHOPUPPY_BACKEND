@@ -51,6 +51,8 @@ public class CoolSmsUtil {
 
         // Optional parameters for your own needs
         HashMap<String, String> params = new HashMap<String, String>();
+
+        //UUID uuid = UUID.UUID();
         UUID uuid = UUID.randomUUID();
         params.put("charset", "utf8"); // utf8, euckr default value is utf8
         params.put("srk", uuid.toString()); // Solution key
