@@ -1,6 +1,7 @@
 package com.whopuppy.controller.chat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.whopuppy.annotation.ValidationGroups;
 import com.whopuppy.domain.chat.ChatMessage;
 import com.whopuppy.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 
 @Controller
 public class ChatMessageController {
@@ -26,7 +28,7 @@ public class ChatMessageController {
 
 //  pub/chat/message
     @MessageMapping("chat/message")
-    public void message(ChatMessage message, @Header(value = "Authorization",defaultValue = "") String token) throws JsonProcessingException {
+    public void message(@Validated(ValidationGroups.Send.class) ChatMessage message, @Header(value = "Authorization",defaultValue = "") String token) throws JsonProcessingException {
 //    public void message(ChatMessage message){
 
         System.out.println(message.getMessage());

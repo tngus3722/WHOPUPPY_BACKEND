@@ -29,5 +29,6 @@ public final class ValidationGroups {
     public interface postComment extends Create{};
     public interface animalComment extends Default{};
     public interface animalList extends Default{};
+    public interface Send extends Create{};
 
 }

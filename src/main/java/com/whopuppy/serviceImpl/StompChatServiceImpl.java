@@ -157,7 +157,7 @@ public class StompChatServiceImpl implements ChatService {
 
     @Override
     public void spreadMessage(ChatMessage message) {
-        System.out.println("하이");
+        System.out.println("스프레드");
         List<ChatRoomMember> chatRoomMemberList = chatRoomMemberRepo.findAllByChatRoomId(message.getChatRoomId());
         for(ChatRoomMember chatRoomMember : chatRoomMemberList ){
             messageSendingOperations.convertAndSend("/sub/chat/users/"+chatRoomMember.getUserId(),message);

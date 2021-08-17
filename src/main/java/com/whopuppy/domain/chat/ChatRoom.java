@@ -46,8 +46,8 @@ public class ChatRoom extends BaseEntity {
 
     @Transient
     @ApiModelProperty(hidden = true)
-    @NotNull( groups = { ValidationGroups.Create.class}, message = "참가자는 공백일 수 없습니다.")
-    @Size(groups = { ValidationGroups.Create.class}, min = 1, message = "1명 이상의 참가자가 필요합니다(2)")
+    //@NotNull( groups = { ValidationGroups.Create.class}, message = "참가자는 공백일 수 없습니다.")
+    //@Size(groups = { ValidationGroups.Create.class}, min = 1, message = "1명 이상의 참가자가 필요합니다(2)")
     private List<User> users;
 
     @Transient
