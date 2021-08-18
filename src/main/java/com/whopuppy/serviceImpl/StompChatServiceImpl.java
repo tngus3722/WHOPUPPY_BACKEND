@@ -102,6 +102,7 @@ public class StompChatServiceImpl implements ChatService {
         List<ChatRoomMember> chatRoomMemberList = new ArrayList<>();
         chatRoomMemberList.add(new ChatRoomMember(
             chatRoom.getId(),0L,userId,true,true));
+
         for(User user : chatRoom.getUsers()){
             chatRoomMemberList.add(new ChatRoomMember(
                 chatRoom.getId(),0L,user.getId(),false,false));
