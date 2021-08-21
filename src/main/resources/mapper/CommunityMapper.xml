@@ -85,6 +85,25 @@
         SELECT image_url FROM whopuppy.article_image WHERE article_id = #{id}
     </select>
 
+    <select id="getArticle" resultMap="whopuppy_article_resultMap">
+        SELECT
+        <include refid="whopuppy_article">
+            <property name="alias" value="a."/>
+            <property name="prefix" value="A_"/>
+        </include>,
+        <include refid="whopuppy_article_user">
+            <property name="alias" value="u."/>
+            <property name="prefix" value="U_"/>
+        </include>,
+        b.board as B_board
+        FROM whopuppy.article AS a
+        JOIN whopuppy.user AS u
+        ON a.user_id = u.id
+        JOIN whopuppy.board AS b
+        ON a.board_id = b.id
+        WHERE a.id = #{articleId} AND a.is_deleted = 0
+    </select>
+
     <select id="getArticles" resultMap="whopuppy_article_resultMap">
         SELECT
         <include refid="whopuppy_article">

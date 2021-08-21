@@ -1,10 +1,7 @@
 package com.whopuppy.serviceImpl;
 
-import com.amazonaws.services.xray.model.Http;
-import com.whopuppy.domain.community.ArticleImage;
 import com.whopuppy.domain.criteria.BaseCriteria;
 import com.whopuppy.domain.snack.SnackArticle;
-import com.whopuppy.domain.snack.SnackImage;
 import com.whopuppy.enums.ErrorMessage;
 import com.whopuppy.exception.RequestInputException;
 import com.whopuppy.mapper.SnackMapper;
@@ -101,5 +98,13 @@ public class SnackServiceImpl implements SnackService {
     @Override
     public List<SnackArticle> getAllSnackArticles(BaseCriteria baseCriteria) {
         return snackMapper.getAllSnackArticles(baseCriteria);
+    }
+
+    public SnackArticle getArticle(Long articleId){
+        return snackMapper.getArticle(articleId);
+    }
+
+    public BaseResponse deleteArticle(Long id){
+        return null;
     }
 }
