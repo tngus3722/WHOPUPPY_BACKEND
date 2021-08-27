@@ -52,10 +52,15 @@ public class CommunityController {
     }
 
     @GetMapping("/article")
-    @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
     @ApiOperation(value = "게시글 조회", notes = "Board_id와 지역에 따른 게시글 조회", authorizations = @Authorization(value = "Bearer +accessToken"))
     public ResponseEntity getArticles(@ModelAttribute ArticleCriteria articleCriteria) {
-        return new ResponseEntity(baseCommunity.getArticles( articleCriteria), HttpStatus.OK);
+        return new ResponseEntity(baseCommunity.getArticles(articleCriteria), HttpStatus.OK);
+    }
+
+    @GetMapping("/article/{articleId}")
+    @ApiOperation(value = "게시글 조회", notes = "Board_id와 지역에 따른 게시글 조회", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity getArticles(@PathVariable Long articleId) {
+        return new ResponseEntity(baseCommunity.getArticle(articleId), HttpStatus.OK);
     }
 
     @Xss
@@ -63,7 +68,7 @@ public class CommunityController {
     @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
     @ApiOperation(value = "게시글 수정", notes = "게시글 수정", authorizations = @Authorization(value = "Bearer +accessToken"))
     public ResponseEntity updateArticle(@RequestBody @Validated(ValidationGroups.postCommunity.class) Article article, @PathVariable Long id) {
-        return new ResponseEntity(baseCommunity.updateArticle(article, id) , HttpStatus.OK);
+        return new ResponseEntity(baseCommunity.updateArticle(article, id), HttpStatus.OK);
     }
 
     @DeleteMapping("/article/{id}")
@@ -78,23 +83,20 @@ public class CommunityController {
     @PostMapping("/article/{id}/comment")
     @ApiOperation(value = "게시글에 댓글 작성", notes = "게시글에 댓글 작성", authorizations = @Authorization(value = "Bearer +accessToken"))
     public ResponseEntity postComment(@RequestBody @Validated(ValidationGroups.postComment.class) ArticleComment articleComment, @PathVariable Long id) throws Exception {
-        return new ResponseEntity(baseCommunity.postComment(articleComment,id), HttpStatus.CREATED);
+        return new ResponseEntity(baseCommunity.postComment(articleComment, id), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/article/{id}/comment/{commentId}")
     @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
     @ApiOperation(value = "게시글에 댓글 삭제", notes = "게시글에 댓글 삭제", authorizations = @Authorization(value = "Bearer +accessToken"))
     public ResponseEntity deleteComment(@PathVariable Long commentId, @PathVariable Long id) {
-        return new ResponseEntity(baseCommunity.deleteComment(id ,commentId ), HttpStatus.OK);
+        return new ResponseEntity(baseCommunity.deleteComment(id, commentId), HttpStatus.OK);
     }
 
 
     @GetMapping("/article/{id}/comment")
-    @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
     @ApiOperation(value = "게시글에 댓글 조회", notes = "게시글에 댓글 조회", authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity deleteComment( @PathVariable Long id) {
-        return new ResponseEntity(baseCommunity.getComment(id ), HttpStatus.OK);
+    public ResponseEntity deleteComment(@PathVariable Long id) {
+        return new ResponseEntity(baseCommunity.getComment(id), HttpStatus.OK);
     }
-
-
 }

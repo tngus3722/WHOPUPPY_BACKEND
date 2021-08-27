@@ -116,6 +116,12 @@ public class BaseCommunityImpl implements BaseCommunity {
     }
     //TODO 다중 이미지 업로드 함수
 
+
+    @Override
+    public Article getArticle(Long articleId) {
+        return communityMapper.getArticle(articleId);
+    }
+
     // region 입력값 검증
     private boolean regionCheck(String region){
 
@@ -254,5 +260,4 @@ public class BaseCommunityImpl implements BaseCommunity {
         communityMapper.softDeleteComment(id, commentId );
         return new BaseResponse("댓글이 삭제되었습니다", HttpStatus.OK);
     }
-
 }

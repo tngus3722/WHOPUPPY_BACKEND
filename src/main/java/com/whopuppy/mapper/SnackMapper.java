@@ -14,4 +14,5 @@ public interface SnackMapper {
     void insertImage(Long id, List<String> images);
     Long postArticle(SnackArticle snackArticle);
     List<SnackArticle> getAllSnackArticles(BaseCriteria baseCriteria);
+    SnackArticle getArticle(Long articleId);
 }

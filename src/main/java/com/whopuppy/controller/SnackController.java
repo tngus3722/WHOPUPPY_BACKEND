@@ -1,5 +1,6 @@
 package com.whopuppy.controller;
 
+import com.amazonaws.Response;
 import com.whopuppy.annotation.Auth;
 import com.whopuppy.annotation.Xss;
 import com.whopuppy.domain.criteria.BaseCriteria;
@@ -39,22 +40,14 @@ public class SnackController {
     }
 
     @GetMapping("/article")
-    @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
     @ApiOperation(value = "수제간식 레시피 글 조회", notes = "수제간식 레시피 글 조회", authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity getgetAllSnackArticles(@ModelAttribute BaseCriteria baseCriteria){
+    public ResponseEntity getAllSnackArticles(@ModelAttribute BaseCriteria baseCriteria){
         return new ResponseEntity(snackService.getAllSnackArticles(baseCriteria), HttpStatus.OK);
     }
 
-    @Xss
-    @PostMapping("/test")
-    public List<String> test(@RequestBody SnackArticle snackArticle){
-        return snackService.getImagesFromContent(snackArticle.getContent());
+    @GetMapping("/article/{articleId}")
+    @ApiOperation(value = "수제간식 레시피 글 단일 조회", notes = "수제간식 레시피 글 단일 조회", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public ResponseEntity getSnackArticle(@PathVariable Long articleId){
+        return new ResponseEntity(snackService.getArticle(articleId), HttpStatus.OK);
     }
-
-    @Xss
-    @PostMapping("/test2")
-    public String test2(@RequestBody SnackArticle snackArticle){
-        return snackArticle.getContent();
-    }
-
 }

@@ -32,4 +32,5 @@ public interface CommunityMapper {
     Long getAuthorComment(Long id, Long commentId);
     void softDeleteComment(Long id, Long commentId);
     List<String> getRegion();
+    Article getArticle(Long articleId);
 }
