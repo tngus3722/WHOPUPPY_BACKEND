@@ -4,6 +4,8 @@ import com.amazonaws.services.dynamodbv2.xspec.NULL;
 import com.whopuppy.domain.CommentDTO;
 import com.whopuppy.mapper.CommentMapper;
 import com.whopuppy.service.CommentService;
+import com.whopuppy.domain.criteria.CommentCriteria;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,12 +53,13 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDTO> getCommentList(Long article_id) throws Exception{
+    public List<CommentDTO> getCommentList(CommentCriteria commentCriteria) throws Exception{
         List<CommentDTO> commentList = Collections.emptyList();
 
-        int commentTotalCount = commentMapper.selectCommentTotalCount(article_id);
+        Long commentTotalCount = commentMapper.selectCommentTotalCount(commentCriteria.getArticle_id());
+
         if (commentTotalCount > 0) {
-            commentList = commentMapper.selectCommentList(article_id);
+            commentList = commentMapper.selectCommentList(commentCriteria);
         }
         else
             throw new Exception();

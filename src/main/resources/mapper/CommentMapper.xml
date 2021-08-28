@@ -4,7 +4,7 @@
 
     <sql id="commentColumns">
         article_id
-		, content
+        , content
 		, user_id
     </sql>
 
@@ -30,13 +30,14 @@
         WHERE id = #{id}
     </update>
 
-    <select id="selectCommentList" parameterType="long" resultType="com.whopuppy.domain.CommentDTO">
+    <select id="selectCommentList" parameterType="com.whopuppy.domain.criteria.CommentCriteria" resultType="com.whopuppy.domain.CommentDTO">
         SELECT * FROM whopuppy.animal_comment
         WHERE is_deleted = 0 AND article_id = #{article_id}
         ORDER BY id DESC, created_at DESC
+        LIMIT #{cursor},#{limit}
     </select>
 
-    <select id="selectCommentTotalCount" parameterType="long" resultType="int">
+    <select id="selectCommentTotalCount" parameterType="long" resultType="long">
         SELECT COUNT(*) FROM animal_comment
         WHERE is_deleted = 0 AND article_id = #{article_id}
     </select>

@@ -1,7 +1,9 @@
 package com.whopuppy.mapper;
 
 import com.whopuppy.domain.CommentDTO;
+import com.whopuppy.domain.criteria.CommentCriteria;
 import org.apache.ibatis.annotations.Mapper;
+import org.hibernate.Criteria;
 
 import java.util.List;
 
@@ -11,7 +13,7 @@ public interface CommentMapper {
     CommentDTO selectCommentDetail(Long comment_id);
     Integer updateComment(CommentDTO commentDTO, Long id);
     Integer deleteComment(Long comment_id);
-    List<CommentDTO> selectCommentList(Long board_idx);
-    Integer selectCommentTotalCount(Long board_idx);
+    List<CommentDTO> selectCommentList(CommentCriteria criteria);
+    Long selectCommentTotalCount(Long board_idx);
     Long isCommentCreated(Long id);
 }
