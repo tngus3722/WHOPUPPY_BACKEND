@@ -1,5 +1,6 @@
 package com.whopuppy.serviceImpl;
 
+import com.whopuppy.domain.criteria.AnimalListCriteria;
 import com.whopuppy.mapper.AnimalMapper;
 import com.whopuppy.service.AnimalService;
 import org.json.simple.parser.ParseException;
@@ -10,22 +11,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.whopuppy.domain.AnimalDTO;
-import org.json.XML;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -37,6 +33,12 @@ public class AnimalServiceImpl implements AnimalService {
     private AnimalMapper animalMapper;
 
     public static int INDENT_FACTOR = 4;
+
+    final RestTemplate restTemplate;
+
+    public AnimalServiceImpl(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     @Value("${animal.service-key}")
     private String serviceKey;
@@ -51,14 +53,10 @@ public class AnimalServiceImpl implements AnimalService {
         animalMapper.insertAnimal(map);
     }
 
-    public ResponseEntity insertAnimalList() throws IOException, ParseException {
-        byte[] bytes;
-        String apiString;
-
+    public ResponseEntity insertAnimalList() throws IOException, ParseException, URISyntaxException {
         Calendar cal = Calendar.getInstance();
         Date currentDate = new Date();
         SimpleDateFormat date = new SimpleDateFormat("yyyyMMdd");
-        cal.setTime(new Date());
         cal.add(Calendar.DATE, -1);
         String startDate = date.format(cal.getTime());
         String endDate = date.format(currentDate);
@@ -72,36 +70,14 @@ public class AnimalServiceImpl implements AnimalService {
             String resultURL = apiURL + startDate + "&endde=" + endDate + "&pageNo=" + ++pageNo + "&numOfRows=" + Rows + "&";
             StringBuilder urlBuilder = new StringBuilder(resultURL);
             urlBuilder.append(URLEncoder.encode("ServiceKey", "UTF-8") + serviceKey);
-            URL url = new URL(urlBuilder.toString());
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            URI uri = new URI(urlBuilder.toString());
 
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Content-type", "application/json");
-            BufferedReader rd;
-
-            if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            } else {
-                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-            }
-            StringBuilder sb = new StringBuilder();
-
-            String line;
-            while ((line = rd.readLine()) != null) {
-                sb.append(line);
-            }
-
-            conn.disconnect();
-
-            org.json.JSONObject xmlJSONObj = XML.toJSONObject(sb.toString());
-            String jsonStr = xmlJSONObj.toString(INDENT_FACTOR);
-            bytes = jsonStr.getBytes();
-            apiString = new String(bytes);
+            String jsonStr = restTemplate.getForObject(uri, String.class);
 
             List<AnimalDTO> animalDTOList = new ArrayList<>();
 
             JSONParser jsonParser = new JSONParser();
-            JSONObject jsonObj = (JSONObject) jsonParser.parse(apiString);
+            JSONObject jsonObj = (JSONObject) jsonParser.parse(jsonStr);
             JSONObject parse_response = (JSONObject) jsonObj.get("response");
             JSONObject parse_body = (JSONObject) parse_response.get("body");
             JSONObject parse_items = (JSONObject) parse_body.get("items");
@@ -122,6 +98,19 @@ public class AnimalServiceImpl implements AnimalService {
         }while(currentCount < totalCount);
 
         return new ResponseEntity(("리스트 입력이 완료되었습니다"), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity searchAnimal(AnimalListCriteria animalListCriteria) throws Exception {
+        List<AnimalDTO> animalDTOList;
+        Long animalListTotalCount = animalMapper.searchAnimalTotalCount(animalListCriteria.getNoticeNo());
+        if (animalListTotalCount > 0) {
+            animalDTOList = animalMapper.searchAnimal(animalListCriteria);
+        }
+        else
+            throw new Exception();
+
+        return new ResponseEntity(animalDTOList, HttpStatus.OK);
     }
 
 }

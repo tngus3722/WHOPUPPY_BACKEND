@@ -11,4 +11,25 @@
         </foreach>
 
     </insert>
+
+    <select id="searchAnimal" parameterType="com.whopuppy.domain.criteria.AnimalListCriteria" resultType="com.whopuppy.domain.AnimalDTO">
+        select * from whopuppy.animal_list
+        where processState not like '%종료%'
+        <if test="noticeNo != null">
+            and noticeNo like '%${noticeNo}%'
+        </if>
+        <if test="sexCd != null">
+            AND sexCd like '%${sexCd}%'
+        </if>
+        <if test="kindCd != null">
+            AND kindCd like '%${kindCd}%'
+        </if>
+        LIMIT #{cursor}, #{limit}
+    </select>
+
+    <select id="searchAnimalTotalCount" parameterType="String" resultType="long">
+        SELECT COUNT(*) FROM whopuppy.animal_list
+        WHERE processState not like '%종료%' and noticeNo like '%${noticeNo}%'
+    </select>
+
 </mapper>

@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 @Component
 public class EventScheduler{
@@ -21,7 +22,7 @@ public class EventScheduler{
 
     //every 12'o clock
     @Scheduled(cron = "0 0 0/12 * * ?")
-    public void execute() throws IOException, ParseException {
+    public void execute() throws IOException, ParseException, URISyntaxException {
         animalService.insertAnimalList();
         logger.info("scheduler : " + count++);
     }
