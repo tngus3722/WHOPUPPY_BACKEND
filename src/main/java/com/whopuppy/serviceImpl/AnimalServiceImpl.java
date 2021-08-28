@@ -110,31 +110,7 @@ public class AnimalServiceImpl implements AnimalService {
             JSONObject obj;
             for(int i = 0; i < parse_array.size(); i++) {
                 obj = (JSONObject) parse_array.get(i);
-                AnimalDTO animalDTO = new AnimalDTO();
-
-                animalDTO.setSexCd(obj.get("sexCd").toString());
-                animalDTO.setKindCd(obj.get("kindCd").toString());
-                animalDTO.setNoticeNo(obj.get("noticeNo").toString());
-                animalDTO.setCareAddr(obj.get("careAddr").toString());
-                animalDTO.setProcessState(obj.get("processState").toString());
-                animalDTO.setNoticeSdt(obj.get("noticeSdt").toString());
-                animalDTO.setWeight(obj.get("weight").toString());
-                animalDTO.setChargeNm(Objects.toString(obj.get("chargeNm"), ""));
-                animalDTO.setCareNm(obj.get("careNm").toString());
-                animalDTO.setDesertionNo(obj.get("desertionNo").toString());
-                animalDTO.setCareTel(obj.get("careTel").toString());
-                animalDTO.setHappenPlace(obj.get("happenPlace").toString());
-                animalDTO.setOfficetel(obj.get("officetel").toString());
-                animalDTO.setOrgNm(obj.get("orgNm").toString());
-                animalDTO.setFilename(obj.get("filename").toString());
-                animalDTO.setPopfile(obj.get("popfile").toString());
-                animalDTO.setNoticeEdt(obj.get("noticeEdt").toString());
-                animalDTO.setNeuterYn(obj.get("neuterYn").toString());
-                animalDTO.setSpecialMark(obj.get("specialMark").toString());
-                animalDTO.setColorCd(obj.get("colorCd").toString());
-                animalDTO.setHappenDt(obj.get("happenDt").toString());
-                animalDTO.setAge(obj.get("age").toString());
-
+                AnimalDTO animalDTO = new AnimalDTO(obj);
                 animalDTOList.add(animalDTO);
                 this.insertAnimalJson(animalDTOList);
             }
