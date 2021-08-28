@@ -19,7 +19,7 @@ public class EventScheduler{
 
     static Integer count = 0;
     private static Logger logger = LoggerFactory.getLogger(EventScheduler.class);
-
+    
     //every 12'o clock
     @Scheduled(cron = "0 0 0/12 * * ?")
     public void execute() throws IOException, ParseException, URISyntaxException {

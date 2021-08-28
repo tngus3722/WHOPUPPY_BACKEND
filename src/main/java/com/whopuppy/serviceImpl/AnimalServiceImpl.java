@@ -1,44 +1,36 @@
 package com.whopuppy.serviceImpl;
 
+import com.whopuppy.domain.AnimalDTO;
 import com.whopuppy.domain.criteria.AnimalListCriteria;
 import com.whopuppy.mapper.AnimalMapper;
 import com.whopuppy.service.AnimalService;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.net.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.whopuppy.domain.AnimalDTO;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
+@Transactional
 @Service
 public class AnimalServiceImpl implements AnimalService {
 
-    @Autowired
+    @Resource
     private AnimalMapper animalMapper;
-
-    public static int INDENT_FACTOR = 4;
-
-    final RestTemplate restTemplate;
-
-    public AnimalServiceImpl(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    @Resource
+    private RestTemplate restTemplate;
 
     @Value("${animal.service-key}")
     private String serviceKey;
@@ -66,7 +58,7 @@ public class AnimalServiceImpl implements AnimalService {
         Integer currentCount = 0;
         Integer totalCount = 0;
 
-        do{
+        do {
             String resultURL = apiURL + startDate + "&endde=" + endDate + "&pageNo=" + ++pageNo + "&numOfRows=" + Rows + "&";
             StringBuilder urlBuilder = new StringBuilder(resultURL);
             urlBuilder.append(URLEncoder.encode("ServiceKey", "UTF-8") + serviceKey);
@@ -83,34 +75,20 @@ public class AnimalServiceImpl implements AnimalService {
             JSONObject parse_items = (JSONObject) parse_body.get("items");
             JSONArray parse_array = (JSONArray) parse_items.get("item");
 
-            JSONObject obj;
-            for(int i = 0; i < parse_array.size(); i++) {
-                obj = (JSONObject) parse_array.get(i);
-                AnimalDTO animalDTO = new AnimalDTO(obj);
-                animalDTOList.add(animalDTO);
-                this.insertAnimalJson(animalDTOList);
-            }
+            for (int i = 0; i < parse_array.size(); i++)
+                animalDTOList.add(new AnimalDTO((JSONObject) parse_array.get(i)));
 
+            this.insertAnimalJson(animalDTOList);
             currentCount = pageNo * Rows;
             String count = parse_body.get("totalCount").toString();
             totalCount = Integer.parseInt(count);
-
-        }while(currentCount < totalCount);
+        } while (currentCount < totalCount);
 
         return new ResponseEntity(("리스트 입력이 완료되었습니다"), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity searchAnimal(AnimalListCriteria animalListCriteria) throws Exception {
-        List<AnimalDTO> animalDTOList;
-        Long animalListTotalCount = animalMapper.searchAnimalTotalCount(animalListCriteria.getNoticeNo());
-        if (animalListTotalCount > 0) {
-            animalDTOList = animalMapper.searchAnimal(animalListCriteria);
-        }
-        else
-            throw new Exception();
-
-        return new ResponseEntity(animalDTOList, HttpStatus.OK);
+        return new ResponseEntity(animalMapper.searchAnimal(animalListCriteria), HttpStatus.OK);
     }
-
 }

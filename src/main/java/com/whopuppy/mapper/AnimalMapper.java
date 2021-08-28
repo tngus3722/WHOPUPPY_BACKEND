@@ -10,6 +10,6 @@ import java.util.Map;
 @Mapper
 public interface AnimalMapper {
     Integer insertAnimal(Map<String, Object> map);
-    Long searchAnimalTotalCount(String noticeNo);
     List<AnimalDTO> searchAnimal(AnimalListCriteria animalListCriteria);
+    Long findById(Long id);
 }

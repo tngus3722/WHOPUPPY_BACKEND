@@ -33,13 +33,8 @@
     <select id="selectCommentList" parameterType="com.whopuppy.domain.criteria.CommentCriteria" resultType="com.whopuppy.domain.CommentDTO">
         SELECT * FROM whopuppy.animal_comment
         WHERE is_deleted = 0 AND article_id = #{article_id}
-        ORDER BY id DESC, created_at DESC
+        ORDER BY id DESC
         LIMIT #{cursor},#{limit}
-    </select>
-
-    <select id="selectCommentTotalCount" parameterType="long" resultType="long">
-        SELECT COUNT(*) FROM animal_comment
-        WHERE is_deleted = 0 AND article_id = #{article_id}
     </select>
 
     <select id="isCommentCreated" resultType="Long">

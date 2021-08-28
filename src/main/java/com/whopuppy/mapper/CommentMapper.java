@@ -14,6 +14,5 @@ public interface CommentMapper {
     Integer updateComment(CommentDTO commentDTO, Long id);
     Integer deleteComment(Long comment_id);
     List<CommentDTO> selectCommentList(CommentCriteria criteria);
-    Long selectCommentTotalCount(Long board_idx);
     Long isCommentCreated(Long id);
 }
