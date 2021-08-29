@@ -1,43 +1,29 @@
 package com.whopuppy.util;
 
-import com.whopuppy.controller.AnimalController;
+import com.whopuppy.service.AnimalService;
 import org.json.simple.parser.ParseException;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 @Component
-public class EventScheduler implements Job {
+public class EventScheduler{
 
-    @Resource
-    AnimalController animalController;
+    @Autowired
+    private AnimalService animalService;
 
     static Integer count = 0;
-    /**
-     * Logger.
-     */
     private static Logger logger = LoggerFactory.getLogger(EventScheduler.class);
-
-    @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
-
-        //Save animal api data
-        //every 12 o'clock
-
-        try {
-            animalController.saveAnimalList();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
+    
+    //every 12'o clock
+    @Scheduled(cron = "0 0 0/12 * * ?")
+    public void execute() throws IOException, ParseException, URISyntaxException {
+        animalService.insertAnimalList();
         logger.info("scheduler : " + count++);
     }
 }

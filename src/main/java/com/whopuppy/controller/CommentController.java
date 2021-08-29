@@ -3,6 +3,7 @@ package com.whopuppy.controller;
 import com.whopuppy.annotation.ValidationGroups;
 import com.whopuppy.annotation.Xss;
 import com.whopuppy.domain.CommentDTO;
+import com.whopuppy.domain.criteria.CommentCriteria;
 import com.whopuppy.response.BaseResponse;
 import com.whopuppy.service.CommentService;
 import io.swagger.annotations.ApiOperation;
@@ -32,9 +33,10 @@ public class CommentController {
 
     @GetMapping
     @ApiOperation(value = "댓글 조회", notes = "댓글 조회")
-    public ResponseEntity commentRead(@RequestParam Long article_id) throws Exception {
-        return new ResponseEntity(commentService.getCommentList(article_id), HttpStatus.OK);
+    public ResponseEntity commentRead(@ModelAttribute CommentCriteria commentCriteria) throws Exception {
+        return new ResponseEntity(commentService.getCommentList(commentCriteria), HttpStatus.OK);
     }
+
     @Xss
     @PutMapping(value = "/{id}")
     @ApiOperation(value = "댓글 수정", notes = "댓글 수정")
@@ -47,5 +49,4 @@ public class CommentController {
     public ResponseEntity commentDelete(@PathVariable Long id) throws Exception{
         return new ResponseEntity(new BaseResponse(commentService.deleteComment(id), HttpStatus.OK), HttpStatus.OK);
     }
-
 }
