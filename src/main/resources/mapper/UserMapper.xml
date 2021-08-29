@@ -7,6 +7,10 @@
         SELECT id FROM whopuppy.user WHERE phone_number =#{phone_number}
     </select>
 
+    <update id="updateNickname">
+        UPDATE whopuppy.user SET nickname=#{nickname} WHERE id = #{id};
+    </update>
+
     <select id="getUserIdFromAccount"  resultType="com.whopuppy.domain.user.User">
         SELECT id, account, password, nickname FROM whopuppy.user WHERE account =#{account}
     </select>

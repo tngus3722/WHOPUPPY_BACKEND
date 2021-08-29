@@ -8,6 +8,7 @@ import com.whopuppy.exception.CriticalException;
 import com.whopuppy.exception.RefreshTokenInvalidException;
 import com.whopuppy.exception.RequestInputException;
 import com.whopuppy.mapper.UserMapper;
+import com.whopuppy.response.BaseResponse;
 import com.whopuppy.service.UserService;
 import com.whopuppy.util.CoolSmsUtil;
 import com.whopuppy.util.JwtUtil;
@@ -15,6 +16,7 @@ import com.whopuppy.util.S3Util;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -155,8 +157,6 @@ public class UserServiceImpl implements UserService {
     // 문자 발송
     @Override
     public String sendSms(AuthNumber authNumber) throws Exception {
-
-
         // 와이파이가 중간에 끊겼을 경우 ip 체크는 문제가 될수있다
         // 게정의 회원이 있는지 없는지는 폰번호로 하는 것이 올바륻 ㅏ.
         System.out.println(this.getClientIp());
@@ -276,11 +276,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public String nicknameCheck(String nickname) {
         String result = userMapper.getUserByNickName(nickname);
-        if (result != null) { // 닉네임이 이미 존재 한다면
+        if (result != null)  // 닉네임이 이미 존재 한다면
             throw new RequestInputException(ErrorMessage.NICKNAME_DUPLICATE);
-        } else {
+        else
             return "사용 가능한 닉네임 입니다";
-        }
+
+    }
+
+    @Override
+    public BaseResponse updateNickname(String nickname) {
+        String result = userMapper.getUserByNickName(nickname);
+        if (result != null)  // 닉네임이 이미 존재 한다면
+            throw new RequestInputException(ErrorMessage.NICKNAME_DUPLICATE);
+        else
+            userMapper.UpdateNickname(nickname, this.getLoginUserId());
+        return new BaseResponse("닉네임이 변경되었습니다.", HttpStatus.OK);
     }
 
     //유저의 계정과 비밀번호를 입력받아, 문자 인증이 진행 되었는지 확인 후 변경한다.
@@ -419,7 +429,4 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
-    // TODO 본인이 작성한 글 조회
-
-
 }

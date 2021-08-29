@@ -74,7 +74,7 @@ public class AnimalServiceImpl implements AnimalService {
             JSONObject parse_body = (JSONObject) parse_response.get("body");
             JSONObject parse_items = (JSONObject) parse_body.get("items");
             JSONArray parse_array = (JSONArray) parse_items.get("item");
-
+            
             for (int i = 0; i < parse_array.size(); i++)
                 animalDTOList.add(new AnimalDTO((JSONObject) parse_array.get(i)));
 
