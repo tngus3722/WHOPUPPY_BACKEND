@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.whopuppy.domain.chat.ChatMessage;
 import com.whopuppy.domain.chat.ChatRoom;
 import com.whopuppy.domain.chat.ChatRoomMember;
+import com.whopuppy.domain.chat.ChatVO;
 import com.whopuppy.domain.criteria.ChatRoomCriteria;
 import com.whopuppy.domain.user.User;
 import org.springframework.web.socket.WebSocketSession;
@@ -15,7 +16,7 @@ import java.util.List;
 
 public interface ChatService {
     public ChatRoomMember findRoomUser(Long roomId, Long userId);
-    public List<ChatRoom> findAllRoom();
+    public ChatVO findAllRoom();
 
     public ChatRoom findRoomById(Long roomId);
 
@@ -33,4 +34,8 @@ public interface ChatService {
     public void spreadMessage(ChatMessage message);
     //테스트용 나중에 지워
     public List<ChatRoomMember> test(Timestamp valueOf);
+
+    List<ChatMessage> findChatMessages(Long roomId, Long id, Integer count);
+
+    void readMessage(Long id, String token);
 }

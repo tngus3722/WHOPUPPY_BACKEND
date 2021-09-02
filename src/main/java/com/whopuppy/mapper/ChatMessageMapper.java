@@ -10,8 +10,8 @@ import java.util.List;
 
 @Mapper
 public interface ChatMessageMapper {
-    public List<ChatMessage> getChatMessageList(@Param("room_id") Long roomId, @Param("pre_chat_id") Long preChatId
-    , int size);
+    public List<ChatMessage> getChatMessageList(@Param("room_id") Long roomId, @Param("chat_id") Long preChatId
+    , @Param("size") int size);
 
     public ChatMessage getChatMessage(@Param("id") Long chatMessageId);
 

@@ -32,7 +32,7 @@
         </div>
     </div>
     <ul class="list-group">
-        <li class="list-group-item list-group-item-action" v-for="item in chatrooms" v-bind:key="item.roomId" v-on:click="enterRoom(item.roomId)">
+        <li class="list-group-item list-group-item-action" v-for="item in chatrooms" v-bind:key="item.id" v-on:click="enterRoom(item.id)">
             {{item.name}}
         </li>
     </ul>
@@ -48,7 +48,7 @@
     var ws = Stomp.over(sock);
     var reconnect = 0;
 
-    var tokenString = 'wschat.access_token';
+    var tokenString = 'access_token';
     localStorage.removeItem(tokenString);
     function setToken() {
         localStorage.setItem(tokenString,prompt('token을 입력해 주세요.'));
@@ -66,6 +66,9 @@
     }
     function getUser() {
         return localStorage.getItem('user');
+    }
+    function getRoomId() {
+        return localStorage.getItem('roomId');
     }
     if(getToken()==null){
         setToken();
@@ -90,7 +93,9 @@
                         headers: {
                             Authorization: 'Bearer ' + getToken() //the token is a variable which holds the token
                         }
-                    }).then(response => { this.chatrooms = response.data; });
+                    }).then(response => { this.chatrooms = response.data;
+                    console.log(response.data)
+                    });
             },
             createRoom: function() {
                 if("" === this.room_name) {
@@ -118,14 +123,14 @@
                 }
             },
             enterRoom: function(roomId) {
-
-                    localStorage.setItem('wschat.roomId',roomId);
+                    console.log(roomId);
+                    localStorage.setItem('roomId',roomId);
                     location.href="/chat/enter/room/"+roomId;
 
             },
             recvMessage: function(recv) {
                 //this.messages.unshift({"type":recv.type,"sender":recv.type=='ENTER'?'[알림]':recv.sender,"message":recv.message})
-                console.log(recv);
+                console.log("메시지 도착");
             }
         }
     });
