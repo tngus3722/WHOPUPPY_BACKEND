@@ -6,10 +6,12 @@ import com.whopuppy.annotation.ValidationGroups;
 import com.whopuppy.domain.chat.ChatMessage;
 import com.whopuppy.domain.chat.ChatRoom;
 import com.whopuppy.domain.chat.ChatRoomMember;
+import com.whopuppy.domain.chat.ChatVO;
 import com.whopuppy.domain.criteria.ChatRoomCriteria;
 import com.whopuppy.domain.user.User;
 import com.whopuppy.enums.ErrorMessage;
 import com.whopuppy.exception.CriticalException;
+import com.whopuppy.mapper.ChatMessageMapper;
 import com.whopuppy.mapper.ChatRoomMapper;
 
 import com.whopuppy.mapper.ChatRoomMemberMapper;
@@ -59,6 +61,9 @@ public class StompChatServiceImpl implements ChatService {
     private ChatRoomMapper chatRoomMapper;
 
     @Resource
+    private ChatMessageMapper chatMessageMapper;
+
+    @Resource
     private ChatMessageRepository chatMessageRepo;
     @Resource
     private ChatRoomMemberMapper chatRoomMemberMapper;
@@ -74,17 +79,22 @@ public class StompChatServiceImpl implements ChatService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ChatRoom> findAllRoom() {
+    public ChatVO findAllRoom() {
         //페이지네이션 적용 X
         System.out.println(userService.getLoginUserId());
+        List<ChatRoom> chatRooms = chatRoomMapper.getChatRooms(userService.getLoginUserId());
+        List<User> users = chatRoomMapper.getChatRoomMembers(chatRooms);
 
-        return chatRoomMapper.getChatRooms(userService.getLoginUserId());
+        return new ChatVO(chatRooms,users);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ChatRoom findRoomById(Long roomId) {
-        return chatRoomMapper.getChatRoom(roomId);
+        ChatRoom chatRoom = chatRoomMapper.getChatRoom(roomId);
+        List<User> users = chatRoomMapper.getChatRoomMembers(Arrays.asList(chatRoom));
+        chatRoom.setUsers(users);
+        return chatRoom;
     }
 
     @Override
@@ -169,5 +179,15 @@ public class StompChatServiceImpl implements ChatService {
     @Override
     public List<ChatRoomMember> test(Timestamp timestamp) {
         return chatRoomMemberMapper.test(timestamp);
+    }
+
+    @Override
+    public List<ChatMessage> findChatMessages(Long roomId, Long id, Integer count) {
+        return chatMessageMapper.getChatMessageList(roomId, id, count);
+    }
+
+    @Override
+    public void readMessage(Long id, String token) {
+
     }
 }

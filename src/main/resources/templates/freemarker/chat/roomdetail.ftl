@@ -47,6 +47,16 @@
     var ws = Stomp.over(sock);
     var reconnect = 0;
     // vue.js
+    var tokenString = 'access_token';
+    function getToken() {
+        return localStorage.getItem(tokenString);
+    }
+    function getUser() {
+        return localStorage.getItem('user');
+    }
+    if(getToken()==null){
+        alert("토큰이 없다 다시 ㄱㄱ");
+    }
     var vm = new Vue({
         el: '#app',
         data: {
@@ -57,8 +67,8 @@
             messages: []
         },
         created() {
-            this.roomId = localStorage.getItem('wschat.roomId');
-            this.sender = localStorage.getItem('wschat.sender');
+            this.roomId = getRoomId();
+
             this.findRoom();
         },
         methods: {
@@ -68,7 +78,7 @@
             },
             sendMessage: function() {
                 console.log("이거 뭔데2");
-                ws.send("/pub/chat/message", {}, JSON.stringify({type:'TALK', roomId:this.roomId, sender:this.sender, message:this.message}));
+                ws.send("/pub/chat/message", {}, JSON.stringify({type:'TALK', roomId:this.roomId, sender:getUser(), message:this.message}));
                 this.message = '';
             },
             recvMessage: function(recv) {
@@ -79,27 +89,57 @@
     });
 
     function connect() {
+        var keyword = 'Authorization';
+
         // pub/sub event
-        ws.connect({}, function(frame) {
-            ws.subscribe("/sub/chat/room/"+vm.$data.roomId, function(message) {
-                console.log("이거 뭔데4");
-                var recv = JSON.parse(message.body);
-                vm.recvMessage(recv);
-            });
-            ws.send("/pub/chat/message", {}, JSON.stringify({type:'ENTER', roomId:vm.$data.roomId, sender:vm.$data.sender}));
-        }, function(error) {
-            console.log("이거 뭔데5");
-            if(reconnect++ <= 5) {
-                setTimeout(function() {
-                    console.log("connection reconnect");
-                    sock = new SockJS("/ws-stomp");
-                    ws = Stomp.over(sock);
-                    connect();
-                },10*1000);
+        ws.connect({'Authorization': 'Bearer '+getToken()}, function(frame) {
+                ws.subscribe("/sub/chat/users/"+getUser(), function(message) {
+                    console.log("이거 뭔데4");
+                    var recv = JSON.parse(message.body);
+                    vm.recvMessage(recv);
+                },{
+                    'Authorization': 'Bearer ' + getToken() //the token is a variable which holds the token
+                });
+                ws.send("/pub/chat/message", {'Authorization': 'Bearer '+getToken()}, JSON.stringify({
+                    chatRoomId:this.roomId,
+                    message: "메시지"
+                }));
+            }, function(error) {
+                console.log("이거 뭔데5");
+                if(reconnect++ <= 5) {
+                    setTimeout(function() {
+                        console.log("connection reconnect");
+                        sock = new SockJS("/ws-stomp");
+                        ws = Stomp.over(sock);
+                        connect();
+                    },10*1000);
+                }
             }
-        });
+        );
     }
     connect();
+    // function connect() {
+    //     // pub/sub event
+    //     ws.connect({}, function(frame) {
+    //         ws.subscribe("/sub/chat/room/"+vm.$data.roomId, function(message) {
+    //             console.log("이거 뭔데4");
+    //             var recv = JSON.parse(message.body);
+    //             vm.recvMessage(recv);
+    //         });
+    //         ws.send("/pub/chat/message", {}, JSON.stringify({type:'ENTER', roomId:vm.$data.roomId, sender:vm.$data.sender}));
+    //     }, function(error) {
+    //         console.log("이거 뭔데5");
+    //         if(reconnect++ <= 5) {
+    //             setTimeout(function() {
+    //                 console.log("connection reconnect");
+    //                 sock = new SockJS("/ws-stomp");
+    //                 ws = Stomp.over(sock);
+    //                 connect();
+    //             },10*1000);
+    //         }
+    //     });
+    // }
+    // connect();
 </script>
 </body>
 </html>

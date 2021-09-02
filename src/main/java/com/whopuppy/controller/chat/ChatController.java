@@ -31,7 +31,7 @@ public class ChatController {
 
     }
 
-    @GetMapping("room/enter/{roomId}")
+    @GetMapping("/enter/room/{roomId}")
     public String roomDetail(Model model, @PathVariable String roomId) throws JsonProcessingException {
         model.addAttribute("roomId",roomId);
 

@@ -4,6 +4,7 @@ package com.whopuppy.domain.chat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.whopuppy.annotation.ValidationGroups;
 import com.whopuppy.domain.base.BaseEntity;
+import com.whopuppy.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
@@ -36,4 +38,8 @@ public class ChatMessage extends BaseEntity {
     @ApiModelProperty(hidden = true)
     private Integer readCount;
 
+    @Transient
+    //메시지 수 카운트
+    @ApiModelProperty(hidden = true)
+    private User user;
 }

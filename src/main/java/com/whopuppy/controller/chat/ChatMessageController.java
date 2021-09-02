@@ -26,7 +26,7 @@ public class ChatMessageController {
     @Autowired
     SimpMessageSendingOperations messageSendingOperations;
 
-//  pub/chat/message
+    //메시지 send 컨트롤러
     @MessageMapping("chat/message")
     public void message(@Validated(ValidationGroups.Send.class) ChatMessage message, @Header(value = "Authorization",defaultValue = "") String token) throws JsonProcessingException {
 //    public void message(ChatMessage message){
@@ -38,4 +38,12 @@ public class ChatMessageController {
         //messageSendingOperations.convertAndSend("/sub/chat/room/"+message.getRoomId(),message);
     }
 
+    //메시지 읽음처리
+    @MessageMapping("chat/read")
+    public void read(Long id, @Header(value = "Authorization",defaultValue = "") String token) throws JsonProcessingException {
+
+        System.out.println(token);
+        chatService.readMessage(id, token);
+        //messageSendingOperations.convertAndSend("/sub/chat/room/"+message.getRoomId(),message);
+    }
 }

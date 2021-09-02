@@ -3,7 +3,26 @@
 
 <mapper namespace="com.whopuppy.mapper.ChatMessageMapper">
     <select id="getChatMessageList" resultMap="ChatMessage">
+        SELECT
+        <include refid="column-list">
+            <property name="prefix" value=""/>
+            <property name="alias" value="CM."/>
+        </include>
+        ,
+        <include refid="com.whopuppy.mapper.UserMapper.userList">
+            <property name="prefix" value="U_"/>
+            <property name="alias" value="U."/>
+        </include>
+        FROM whopuppy.chat_message AS CM
+        LEFT JOIN whopuppy.user AS U
+        ON U.ID = CM.SEND_USER_ID
+        WHERE CM.CHAT_ROOM_ID = #{room_id}
+        <if test='!chat_id!=null'>
+            AND CM.ID <![CDATA[  <= ]]> #{chat_id}
+        </if>
 
+        ORDER BY CM.ID DESC
+        LIMIT #{size}
     </select>
 
     <select id="getChatMessage" resultMap="ChatMessage">
@@ -19,7 +38,7 @@
         <result column="is_deleted" property="isDeleted"/>
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
-
+        <association property="user" javaType="com.whopuppy.domain.user.User" columnPrefix="U_" resultMap="com.whopuppy.mapper.UserMapper.userAll" />
     </resultMap>
 
     <sql id="column-list">
