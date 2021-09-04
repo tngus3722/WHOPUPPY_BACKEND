@@ -29,9 +29,14 @@ public class AnimalController {
     }
 
     @GetMapping
-    @ApiOperation(value = "유기견 조회", notes = "유기견 조회")
+    @ApiOperation(value = "유기견 리스트 조회", notes = "유기견 리스트 조회")
     public ResponseEntity searchAnimalList(@ModelAttribute AnimalListCriteria animalListCriteria) throws Exception {
-        return new ResponseEntity(animalService.searchAnimal(animalListCriteria), HttpStatus.OK);
+        return new ResponseEntity(animalService.searchAnimalList(animalListCriteria), HttpStatus.OK);
     }
 
+    @GetMapping("/{idx}")
+    @ApiOperation(value = "선택 유기견 정보 조회", notes = "선택 유기견 정보 조회")
+    public ResponseEntity searchAnimal(@PathVariable Long idx) throws Exception {
+        return new ResponseEntity(animalService.searchAnimal(idx), HttpStatus.OK);
+    }
 }

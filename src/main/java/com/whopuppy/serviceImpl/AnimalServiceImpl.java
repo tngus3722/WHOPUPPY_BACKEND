@@ -88,7 +88,12 @@ public class AnimalServiceImpl implements AnimalService {
     }
 
     @Override
-    public ResponseEntity searchAnimal(AnimalListCriteria animalListCriteria) throws Exception {
+    public ResponseEntity searchAnimalList(AnimalListCriteria animalListCriteria) {
         return new ResponseEntity(animalMapper.searchAnimal(animalListCriteria), HttpStatus.OK);
+    }
+
+    @Override
+    public  ResponseEntity searchAnimal(Long idx){
+        return new ResponseEntity(animalMapper.selectAnimal(idx), HttpStatus.OK);
     }
 }

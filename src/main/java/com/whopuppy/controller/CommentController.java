@@ -41,7 +41,8 @@ public class CommentController {
     @PutMapping(value = "/{id}")
     @ApiOperation(value = "댓글 수정", notes = "댓글 수정")
     public ResponseEntity commentUpdate(@RequestBody @Validated(ValidationGroups.animalComment.class) CommentDTO commentDTO, @PathVariable Long id) throws Exception {
-        return new ResponseEntity(new BaseResponse(commentService.updateComment(commentDTO, id), HttpStatus.OK), HttpStatus.OK);
+        commentService.updateComment(commentDTO, id);
+        return new ResponseEntity(new BaseResponse(commentDTO.getContent(), HttpStatus.OK), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")
