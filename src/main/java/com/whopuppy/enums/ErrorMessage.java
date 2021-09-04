@@ -41,8 +41,8 @@ public enum ErrorMessage {
 	TARGET_ARTICLE_COMMENT_NOT_EXIST(34,"댓글이 존재하지 않습니다", HttpStatus.BAD_REQUEST),
 	REGION_INVALID(35,"지역의 입력값이 잘못되었습니다.", HttpStatus.BAD_REQUEST),
 	TOKEN_NULL(36, "토큰의 값이 비어있습니다.", HttpStatus.FORBIDDEN),
-	ANIMAL_NOT_FOUND_EXCEPTION(37,"해당 유기견이 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
-
+	ANIMAL_NOT_FOUND_EXCEPTION(37,"해당 유기견 게시글이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+	ANIMAL_COMMENT_NOT_FOUND_EXCEPTION(38,"해당 댓글이 존재하지 않습니다.",HttpStatus.BAD_REQUEST);
 
 	Integer code;
 	String errorMessage;

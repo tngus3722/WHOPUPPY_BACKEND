@@ -21,7 +21,7 @@ public class CommentServiceImpl implements CommentService {
     private AnimalMapper animalMapper;
 
     @Override
-    public String registerComment(CommentDTO commentDTO) throws Exception {
+    public String registerComment(CommentDTO commentDTO) {
         if (animalMapper.findById(commentDTO.getArticle_id()) == null)
             throw new RequestInputException(ErrorMessage.ANIMAL_NOT_FOUND_EXCEPTION);
         commentMapper.insertComment(commentDTO);
@@ -29,7 +29,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public String updateComment(CommentDTO commentDTO, Long id) throws Exception {
+    public String updateComment(CommentDTO commentDTO, Long id){
 
         if (commentMapper.isCommentCreated(id) == null)
             commentMapper.updateComment(commentDTO, id);
@@ -39,7 +39,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public String deleteComment(Long id) throws Exception {
+    public String deleteComment(Long id){
         int queryResult = 0;
 
         CommentDTO commentDTO = commentMapper.selectCommentDetail(id);
@@ -47,16 +47,15 @@ public class CommentServiceImpl implements CommentService {
         if (commentDTO != null && "N".equals(commentDTO.getIs_deleted())) {
             queryResult = commentMapper.deleteComment(id);
         } else
-            throw new Exception();
-
+            throw new RequestInputException(ErrorMessage.ANIMAL_COMMENT_NOT_FOUND_EXCEPTION);
 
         return "댓글이 삭제되었습니다.";
     }
 
     @Override
-    public List<CommentDTO> getCommentList(CommentCriteria commentCriteria) throws Exception {
+    public List<CommentDTO> getCommentList(CommentCriteria commentCriteria){
         if (animalMapper.findById(commentCriteria.getArticle_id()) == null)
-            throw new RequestInputException(ErrorMessage.ANIMAL_NOT_FOUND_EXCEPTION);
+            throw new RequestInputException(ErrorMessage.ANIMAL_COMMENT_NOT_FOUND_EXCEPTION);
         return commentMapper.selectCommentList(commentCriteria);
     }
 }
