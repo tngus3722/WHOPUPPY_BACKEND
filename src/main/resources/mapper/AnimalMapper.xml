@@ -17,8 +17,7 @@
 
     <select id="searchAnimal" parameterType="com.whopuppy.domain.criteria.AnimalListCriteria"
             resultType="com.whopuppy.domain.AnimalDTO">
-        select al.*, (select count(*) from whopuppy.animal_list where al al.noticeNo like '%${noticeNo}%' and
-        processState not like '%종료%') from whopuppy.animal_list as al
+        select * from whopuppy.animal_list
         where processState not like '%종료%'
         <if test="noticeNo != null">
             and noticeNo like '%${noticeNo}%'
@@ -29,13 +28,16 @@
         <if test="kindCd != null">
             AND kindCd like '%${kindCd}%'
         </if>
-        order by noticeEdt desc, id desc
+        order by noticeEdt desc, idx desc
         LIMIT #{cursor}, #{limit}
     </select>
 
     <select id="findById" resultType="Long">
-        select id from whopuppy.animal_list where id = #{id}
+        select idx from whopuppy.animal_list where idx = #{idx}
     </select>
 
+    <select id="selectAnimal" resultType="com.whopuppy.domain.AnimalDTO">
+        select * from whopuppy.animal_list where idx = #{idx}
+    </select>
 
 </mapper>

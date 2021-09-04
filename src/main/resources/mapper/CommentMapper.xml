@@ -18,10 +18,9 @@
         WHERE is_deleted = 0 AND id = #{id}
     </select>
 
-    <update id="updateComment" parameterType="com.whopuppy.domain.CommentDTO">
-        UPDATE animal_comment
-        SET updated_at = NOW() , content = #{content} , user_id = #{user_id}
-        WHERE  id = #{id}
+    <update id="updateComment">
+        UPDATE whopuppy.animal_comment
+        SET content = #{content} , updated_at = NOW() WHERE  id = #{id}
     </update>
 
     <update id="deleteComment" parameterType="long">
@@ -38,7 +37,7 @@
     </select>
 
     <select id="isCommentCreated" resultType="Long">
-        SELECT id FROM animal_comment
+        SELECT count(id) FROM animal_comment
         WHERE  id = #{id} AND is_deleted = 0;
     </select>
 

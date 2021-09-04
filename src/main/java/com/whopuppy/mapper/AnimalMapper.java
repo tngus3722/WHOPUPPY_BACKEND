@@ -11,5 +11,6 @@ import java.util.Map;
 public interface AnimalMapper {
     Integer insertAnimal(Map<String, Object> map);
     List<AnimalDTO> searchAnimal(AnimalListCriteria animalListCriteria);
-    Long findById(Long id);
+    AnimalDTO selectAnimal(Long idx);
+    Long findById(Long idx);
 }

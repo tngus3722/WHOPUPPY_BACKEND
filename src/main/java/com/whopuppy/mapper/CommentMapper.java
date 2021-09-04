@@ -10,8 +10,7 @@ import java.util.List;
 @Mapper
 public interface CommentMapper {
     Integer insertComment(CommentDTO commentDTO);
-    CommentDTO selectCommentDetail(Long comment_id);
-    Integer updateComment(CommentDTO commentDTO, Long id);
+    Integer updateComment(CommentDTO commentDTO);
     Integer deleteComment(Long comment_id);
     List<CommentDTO> selectCommentList(CommentCriteria criteria);
     Long isCommentCreated(Long id);

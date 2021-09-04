@@ -12,5 +12,6 @@ import java.util.List;
 public interface AnimalService {
     void insertAnimalJson(List animalDTOList);
     ResponseEntity insertAnimalList() throws IOException, ParseException, URISyntaxException;
-    ResponseEntity searchAnimal(AnimalListCriteria animalListCriteria) throws Exception;
+    ResponseEntity searchAnimalList(AnimalListCriteria animalListCriteria) throws Exception;
+    ResponseEntity searchAnimal(Long idx) throws Exception;
 }
