@@ -140,7 +140,7 @@ public class StompChatServiceImpl implements ChatService {
         chatRoomMember.setMessageId(chatMessage.getId());
         chatRoomMemberRepo.save(chatRoomMember);
 
-
+        chatMessage.setUser(me);
 
         kafkaProducer.send("TOPIC", new ObjectMapper().writeValueAsString(chatMessage));
         //messageSendingOperations.convertAndSend("/sub/chat/users/"+message.getRoomId(),message);
