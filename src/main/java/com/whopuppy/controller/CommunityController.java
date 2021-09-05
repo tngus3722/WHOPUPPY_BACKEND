@@ -99,4 +99,11 @@ public class CommunityController {
     public ResponseEntity deleteComment(@PathVariable Long id) {
         return new ResponseEntity(baseCommunity.getComment(id), HttpStatus.OK);
     }
+
+    @Auth
+    @ApiOperation(value = "유저가 작성한 게시글 게시판 별 조회 ", notes = "유저가 작성한 게시글 게시판 별 조회 r", authorizations = @Authorization(value = "Bearer +accessToken"))
+    @GetMapping("/article/user/{boardId}")
+    public ResponseEntity getUserArticlesByBoardId(@PathVariable Long boardId){
+        return new ResponseEntity(baseCommunity.getArticlesByBoardIdAndUserId(boardId),HttpStatus.OK);
+    }
 }

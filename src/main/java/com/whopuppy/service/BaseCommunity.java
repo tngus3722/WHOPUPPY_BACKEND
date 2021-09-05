@@ -23,4 +23,5 @@ public interface BaseCommunity {
     BaseResponse postComment(ArticleComment articleComment, Long id);
     BaseResponse deleteComment(Long id, Long commentId);
     Article getArticle(Long articleId);
+    List<Article> getArticlesByBoardIdAndUserId(Long boardId);
 }
