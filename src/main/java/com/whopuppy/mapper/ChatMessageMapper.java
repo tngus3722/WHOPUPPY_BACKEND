@@ -16,4 +16,5 @@ public interface ChatMessageMapper {
     public ChatMessage getChatMessage(@Param("id") Long chatMessageId);
 
 
+    void setReadMessage(@Param("room_id") Long chatRoomId, @Param("from") Long from, @Param("to") Long to);
 }
