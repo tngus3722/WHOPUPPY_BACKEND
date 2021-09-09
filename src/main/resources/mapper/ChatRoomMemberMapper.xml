@@ -57,4 +57,10 @@
 			,${alias}CREATED_AT AS ${prefix}CREATED_AT
 			,${alias}UPDATED_AT AS ${prefix}UPDATED_AT
 	</sql>
+
+    <update id="setReadMessage">
+        UPDATE chat_room_member SET message_id = #{to}
+        WHERE user_id = #{user_id}
+            AND chat_room_id = #{room_id}
+    </update>
 </mapper>

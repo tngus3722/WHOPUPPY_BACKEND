@@ -18,4 +18,6 @@ public interface ChatRoomMemberMapper {
 
     //나중에 없앨 것
     List<ChatRoomMember> test(@Param("time") Timestamp timestamp);
+
+    void setReadMessage(@Param("user_id") Long userId, @Param("room_id") Long chatRoomId, @Param("to") Long to);
 }

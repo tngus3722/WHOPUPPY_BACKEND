@@ -11,6 +11,7 @@ import com.whopuppy.domain.criteria.ChatRoomCriteria;
 import com.whopuppy.domain.user.User;
 import com.whopuppy.enums.ErrorMessage;
 import com.whopuppy.exception.CriticalException;
+import com.whopuppy.exception.NonCriticalException;
 import com.whopuppy.mapper.ChatMessageMapper;
 import com.whopuppy.mapper.ChatRoomMapper;
 
@@ -188,6 +189,23 @@ public class StompChatServiceImpl implements ChatService {
 
     @Override
     public void readMessage(Long id, String token) {
+        User me = userService.getMe(token);
+        ChatMessage chatMessage = chatMessageRepo.findById(id).orElseThrow(() -> new NonCriticalException(ErrorMessage.NULL_POINTER_EXCEPTION));
+        //여건 상 에러처리 추가하지 못함.
+        ChatRoomMember chatRoomMember = chatRoomMemberRepo.findByUserIdAndChatRoomId(me.getId(), chatMessage.getChatRoomId());
+        //Message count 낮추기
+        //from (<) id (<=) to 사이의 메시지 중 room id가 동일한 것들의 read count를 -1 해준다.
+        //
+        // @Param("room_id") Long chatRoomId, @Param("from") Long from, @Param("to") Long to
+        chatMessageMapper.setReadMessage(chatMessage.getChatRoomId(), chatRoomMember.getMessageId(), id);
+        //ChatRoom Member의 메시지 값을 to로 바꾼다.
+        //@Param("user_id") Long userId, @Param("room_id") Long chatRoomId, @Param("to") Long to
+        chatRoomMemberMapper.setReadMessage(me.getId(), chatMessage.getChatRoomId(), id);
+
+        //to from 찾아내서
+        //해당 값 return 해주기
+        //리턴의 형태를 클라이언트에서 어떻게 처리시켜야할지 몰라서
+        //일단 void로 마무리 -> 읽은거 카운트 안하겠다는 의미
 
     }
 }

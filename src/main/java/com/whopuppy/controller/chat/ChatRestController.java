@@ -1,5 +1,6 @@
 package com.whopuppy.controller.chat;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.whopuppy.annotation.Auth;
 import com.whopuppy.annotation.ValidationGroups;
 import com.whopuppy.domain.chat.ChatMessage;
@@ -17,11 +18,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,9 +36,10 @@ public class ChatRestController {
     @Autowired
     @Qualifier("stompChatServiceImpl")
     private ChatService chatService;
-    //삭제할것
-    @Resource
-    private ChatRoomMapper chatRoomMapper;
+
+    @Autowired
+    HttpServletRequest request;
+
 
     // 모든 채팅방 목록 반환
     @GetMapping("/rooms")
@@ -79,21 +84,13 @@ public class ChatRestController {
         return new ResponseEntity<ChatRoomMember>(chatService.findRoomUser(roomId, userId),HttpStatus.OK);
     }
 
-    // 테스트
-    @PostMapping("/room/test")
-    public ResponseEntity<List<ChatRoomMember>> test(@ApiParam(value = "(required: start_time), example = 2020-01-01 00:00:00") @RequestParam(value="start_time",required = true, defaultValue = "#{T(java.time.LocalDateTime).now()}") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start_date) {
-        return new ResponseEntity<List<ChatRoomMember>>(chatService.test(Timestamp.valueOf(start_date)),HttpStatus.OK);
-    }
+    @GetMapping("/read")
+    @ApiOperation(value = "메시지 읽음처리", notes = "메시지 읽음처리", authorizations = @Authorization(value = "Bearer +accessToken"))
+    public void read(Long id) throws JsonProcessingException {
+        String token = request.getHeader("Authorization");
 
-    // 테스트
-    @PostMapping("/room/test2")
-    public ResponseEntity<List<ChatRoom>> test2() {
-        return new ResponseEntity<List<ChatRoom>>(chatRoomMapper.getChatRooms(1L),HttpStatus.OK);
+        System.out.println(token);
+        chatService.readMessage(id, token);
+        //messageSendingOperations.convertAndSend("/sub/chat/room/"+message.getRoomId(),message);
     }
-    // 테스트
-    @PostMapping("/room/test3")
-    public ResponseEntity<ChatRoom> test3() {
-        return new ResponseEntity<ChatRoom>(chatRoomMapper.getChatRoom(1L),HttpStatus.OK);
-    }
-
 }
