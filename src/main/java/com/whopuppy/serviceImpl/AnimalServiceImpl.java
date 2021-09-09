@@ -88,12 +88,12 @@ public class AnimalServiceImpl implements AnimalService {
     }
 
     @Override
-    public ResponseEntity searchAnimalList(AnimalListCriteria animalListCriteria) {
-        return new ResponseEntity(animalMapper.searchAnimal(animalListCriteria), HttpStatus.OK);
+    public List<AnimalDTO> searchAnimalList(AnimalListCriteria animalListCriteria) {
+        return animalMapper.searchAnimal(animalListCriteria);
     }
 
     @Override
-    public  ResponseEntity searchAnimal(Long idx){
-        return new ResponseEntity(animalMapper.selectAnimal(idx), HttpStatus.OK);
+    public AnimalDTO searchAnimal(Long idx){
+        return animalMapper.selectAnimal(idx);
     }
 }

@@ -289,7 +289,7 @@ public class UserServiceImpl implements UserService {
         if (result != null)  // 닉네임이 이미 존재 한다면
             throw new RequestInputException(ErrorMessage.NICKNAME_DUPLICATE);
         else
-            userMapper.UpdateNickname(nickname, this.getLoginUserId());
+            userMapper.updateNickname(nickname, this.getLoginUserId());
         return new BaseResponse("닉네임이 변경되었습니다.", HttpStatus.OK);
     }
 

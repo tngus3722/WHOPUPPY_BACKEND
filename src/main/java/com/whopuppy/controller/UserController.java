@@ -111,8 +111,7 @@ public class UserController {
     @Auth
     @RequestMapping(value = "/nickname", method = RequestMethod.PUT)
     @ApiOperation(value = "닉네임 변경", notes = "닉네임 변경", authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity updateNickname(@RequestBody String nickname) throws Exception {
-        return new ResponseEntity(userService.updateNickname(nickname), HttpStatus.OK);
+    public ResponseEntity updateNickname(@RequestBody @Validated(ValidationGroups.nicknameCheck.class) User user) throws Exception {
+        return new ResponseEntity(userService.updateNickname(user.getNickname()), HttpStatus.OK);
     }
-    
 }

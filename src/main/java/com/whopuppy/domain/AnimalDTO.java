@@ -7,6 +7,7 @@ import java.util.Objects;
 
 @Component
 public class AnimalDTO {
+    private Long idx;
     private String sexCd;
     private String kindCd;
     private String desertionNo;
@@ -29,6 +30,14 @@ public class AnimalDTO {
     private String colorCd;
     private String happenDt;
     private String age;
+
+    public Long getIdx() {
+        return idx;
+    }
+
+    public void setIdx(Long idx) {
+        this.idx = idx;
+    }
 
     public AnimalDTO(){}
 

@@ -39,7 +39,7 @@ public class CommunityController {
     @Auth(authority = Auth.Authority.NONE, role = Auth.Role.NORMAL)
     @PostMapping("/article/image")
     @ApiOperation(value = "게시글에 넣을 image url 반환", notes = "게시글에 넣을 image url 반환", authorizations = @Authorization(value = "Bearer +accessToken"))
-    public ResponseEntity uploadArticleImages(@RequestBody MultipartFile multipartFile) throws Exception {
+    public ResponseEntity uploadArticleImages(@RequestParam MultipartFile multipartFile) throws Exception {
         return new ResponseEntity(baseCommunity.uploadArticleImages(multipartFile), HttpStatus.OK);
     }
 

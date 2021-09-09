@@ -1,5 +1,6 @@
 package com.whopuppy.service;
 
+import com.whopuppy.domain.AnimalDTO;
 import com.whopuppy.domain.criteria.AnimalListCriteria;
 import org.json.simple.parser.ParseException;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,6 @@ import java.util.List;
 public interface AnimalService {
     void insertAnimalJson(List animalDTOList);
     ResponseEntity insertAnimalList() throws IOException, ParseException, URISyntaxException;
-    ResponseEntity searchAnimalList(AnimalListCriteria animalListCriteria) throws Exception;
-    ResponseEntity searchAnimal(Long idx) throws Exception;
+    List<AnimalDTO> searchAnimalList(AnimalListCriteria animalListCriteria) throws Exception;
+    AnimalDTO searchAnimal(Long idx) throws Exception;
 }
