@@ -39,8 +39,8 @@ public class ChatMessageController {
     }
 
     //메시지 읽음처리
-    @MessageMapping("chat/read")
-    public void read(Long id, @Header(value = "Authorization",defaultValue = "") String token) throws JsonProcessingException {
+    @MessageMapping("chat/read/{id}")
+    public void read(@DestinationVariable Long id, @Header(value = "Authorization",defaultValue = "") String token) throws JsonProcessingException {
 
         System.out.println(token);
         chatService.readMessage(id, token);
