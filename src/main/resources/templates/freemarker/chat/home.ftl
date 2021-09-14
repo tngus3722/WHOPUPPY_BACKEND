@@ -131,6 +131,7 @@
             recvMessage: function(recv) {
                 //this.messages.unshift({"type":recv.type,"sender":recv.type=='ENTER'?'[알림]':recv.sender,"message":recv.message})
                 console.log("메시지 도착");
+                console.log(recv.id);
             }
         }
     });
@@ -145,6 +146,10 @@
                 console.log("이거 뭔데4");
                 var recv = JSON.parse(message.body);
                 vm.recvMessage(recv);
+/*
+
+
+ */
             },{
                 'Authorization': 'Bearer ' + getToken() //the token is a variable which holds the token
             });
@@ -152,6 +157,7 @@
                 chatRoomId:1,
                 message: "메시지"
             }));
+            //ws.send("/pub/chat/read/"+10, {'Authorization': 'Bearer '+getToken()});
         }, function(error) {
             console.log("이거 뭔데5");
             if(reconnect++ <= 5) {

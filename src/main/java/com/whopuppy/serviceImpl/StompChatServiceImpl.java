@@ -84,9 +84,10 @@ public class StompChatServiceImpl implements ChatService {
         //페이지네이션 적용 X
         System.out.println(userService.getLoginUserId());
         List<ChatRoom> chatRooms = chatRoomMapper.getChatRooms(userService.getLoginUserId());
-        List<User> users = chatRoomMapper.getChatRoomMembers(chatRooms);
+        if(chatRooms==null || chatRooms.size()==0)
+            return new ChatVO(chatRooms, new ArrayList<User>());
 
-        return new ChatVO(chatRooms,users);
+        return new ChatVO(chatRooms,chatRoomMapper.getChatRoomMembers(chatRooms));
     }
 
     @Override

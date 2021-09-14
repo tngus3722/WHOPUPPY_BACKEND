@@ -37,22 +37,21 @@ public class StompHandler implements ChannelInterceptor {
         StompHeaderAccessor headerAccessor= StompHeaderAccessor.wrap(message);
         String accessToken = headerAccessor.getFirstNativeHeader(tokenUserName);
         StompCommand command = headerAccessor.getCommand();
-        System.out.println(command);
-        System.out.println(message.toString());
-        int result = jwt.isValid(accessToken, 0); // flag 0 -> access / 1 refresh
-        if (result != 0)
-            throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+//        System.out.println(command);
+//        System.out.println(message.toString());
 
 
-        if (StompCommand.SUBSCRIBE.equals(command)) {
-            System.out.println(headerAccessor.getFirstNativeHeader("destination"));
-            System.out.println(message.getHeaders().get("simpDestination"));
-            User user = userService.getMe(accessToken);
 
-            System.out.println(user.toString());
+        if (StompCommand.CONNECTED.equals(command)||StompCommand.SUBSCRIBE.equals(command)
+        ||StompCommand.SEND.equals(command)) {
+            int result = jwt.isValid(accessToken, 0); // flag 0 -> access / 1 refresh
+            if (result != 0)
+                throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
+//            System.out.println(headerAccessor.getFirstNativeHeader("destination"));
+//            System.out.println(message.getHeaders().get("simpDestination"));
+//            User user = userService.getMe(accessToken);
+//            System.out.println(user.toString());
         }
-
-
 
 
          // access token이며 valid 하다면
