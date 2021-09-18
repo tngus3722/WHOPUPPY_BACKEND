@@ -127,6 +127,10 @@
                 AND a.region = #{region}
             </when>
         </choose>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(title)">
+            AND a.title like concat('%',#{title},'%')
+        </if>
+
         LIMIT #{cursor},#{limit}
     </select>
     <sql id ="whopuppy_article">
@@ -208,7 +212,14 @@
     </insert>
 
     <select id="getArticleComment" resultType="com.whopuppy.domain.community.ArticleComment">
-        SELECT a.id, a.article_id, a.user_id, u.nickname as user_nickname, a.content, a.created_at, a.updated_at
+        SELECT a.id,
+               a.article_id as articleId ,
+               a.user_id as userId ,
+               u.nickname as userNickname,
+               u.profile_image_url as userProfileImage,
+               a.content,
+               a.created_at as createdAt,
+               a.updated_at as updatedAt
         FROM whopuppy.article_comment AS a
         JOIN whopuppy.user AS u
         ON u.id = a.user_id

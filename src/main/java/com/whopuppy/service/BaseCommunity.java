@@ -15,7 +15,7 @@ public interface BaseCommunity {
     Board getBoard(Long id);
     List<Board> getBoards();
     String uploadArticleImages(MultipartFile multipartFile) throws Exception;
-    BaseResponse postArticle(Article article);
+    Long postArticle(Article article);
     List<Article> getArticles(ArticleCriteria articleCriteria);
     BaseResponse updateArticle(Article article, Long id);
     BaseResponse deleteArticle(Long id);
