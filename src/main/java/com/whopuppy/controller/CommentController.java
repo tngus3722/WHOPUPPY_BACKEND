@@ -1,5 +1,6 @@
 package com.whopuppy.controller;
 
+import com.whopuppy.annotation.Auth;
 import com.whopuppy.annotation.ValidationGroups;
 import com.whopuppy.annotation.Xss;
 import com.whopuppy.domain.CommentDTO;
@@ -23,6 +24,7 @@ public class CommentController {
     @Resource
     private CommentService commentService;
 
+    @Auth
     @Xss
     @PostMapping
     @ApiOperation(value = "댓글 작성", notes = "댓글 작성")
@@ -37,6 +39,7 @@ public class CommentController {
         return new ResponseEntity(commentService.getCommentList(commentCriteria), HttpStatus.OK);
     }
 
+    @Auth
     @Xss
     @PutMapping(value = "/{id}")
     @ApiOperation(value = "댓글 수정", notes = "댓글 수정")
@@ -45,6 +48,7 @@ public class CommentController {
         return new ResponseEntity(new BaseResponse(commentDTO.getContent(), HttpStatus.OK), HttpStatus.OK);
     }
 
+    @Auth
     @DeleteMapping(value = "/{id}")
     @ApiOperation(value = "댓글 삭제", notes = "댓글 삭제")
     public ResponseEntity commentDelete(@PathVariable Long id) throws Exception{

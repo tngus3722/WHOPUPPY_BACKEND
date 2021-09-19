@@ -208,7 +208,7 @@
 
 
     <insert id="postComment">
-        INSERT INTO whopuppy.article_comment(article_id, user_id,content) VAlUES(#{article_id}, #{user_id}, #{content})
+        INSERT INTO whopuppy.article_comment(article_id, user_id,content) VAlUES(#{articleId}, #{userId}, #{content})
     </insert>
 
     <select id="getArticleComment" resultType="com.whopuppy.domain.community.ArticleComment">
