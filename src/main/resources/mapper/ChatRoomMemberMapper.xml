@@ -58,6 +58,12 @@
 			,${alias}UPDATED_AT AS ${prefix}UPDATED_AT
 	</sql>
 
+    <update id="updateMessageId">
+        UPDATE chat_room_member SET  message_id = #{to}
+         WHERE chat_room_id = #{chat_room_id}
+            AND message_id = #{from}
+    </update>
+
     <update id="setReadMessage">
         UPDATE chat_room_member SET message_id = #{to}
         WHERE user_id = #{user_id}

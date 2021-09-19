@@ -20,4 +20,6 @@ public interface ChatRoomMemberMapper {
     List<ChatRoomMember> test(@Param("time") Timestamp timestamp);
 
     void setReadMessage(@Param("user_id") Long userId, @Param("room_id") Long chatRoomId, @Param("to") Long to);
+
+    void updateMessageId(@Param("chat_room_id")Long chatRoomId, @Param("from")Long  from,@Param("to") Long to);
 }

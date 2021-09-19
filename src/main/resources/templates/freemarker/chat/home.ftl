@@ -154,7 +154,7 @@
                 'Authorization': 'Bearer ' + getToken() //the token is a variable which holds the token
             });
             ws.send("/pub/chat/message", {'Authorization': 'Bearer '+getToken()}, JSON.stringify({
-                chatRoomId:1,
+                chatRoomId:16,
                 message: "메시지"
             }));
             //ws.send("/pub/chat/read/"+10, {'Authorization': 'Bearer '+getToken()});
