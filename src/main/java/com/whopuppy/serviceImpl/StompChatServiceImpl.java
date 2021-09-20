@@ -94,6 +94,8 @@ public class StompChatServiceImpl implements ChatService {
     @Transactional(readOnly = true)
     public ChatRoom findRoomById(Long roomId) {
         ChatRoom chatRoom = chatRoomMapper.getChatRoom(roomId);
+        if(chatRoom==null) return null;
+
         List<User> users = chatRoomMapper.getChatRoomMembers(Arrays.asList(chatRoom));
         chatRoom.setUsers(users);
         return chatRoom;
@@ -110,14 +112,19 @@ public class StompChatServiceImpl implements ChatService {
         chatRoom.setCreateUserId(userId);
         chatRoom.setMemberCount(0);
         chatRoomRepo.save(chatRoom);
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setSendUserId(userId);
+        chatMessage.setReadCount(chatRoom.getUsers().size());
+        chatMessage.setMessage("<!HELLO!>");
+        chatMessage.setChatRoomId(chatRoom.getId());
+        chatMessageRepo.save(chatMessage);
 
         List<ChatRoomMember> chatRoomMemberList = new ArrayList<>();
         chatRoomMemberList.add(new ChatRoomMember(
-            chatRoom.getId(),0L,userId,true,true));
-
+            chatRoom.getId(),chatMessage.getId(),userId,true,true));
         for(User user : chatRoom.getUsers()){
             chatRoomMemberList.add(new ChatRoomMember(
-                chatRoom.getId(),0L,user.getId(),false,false));
+                chatRoom.getId(),-1L,user.getId(),false,false));
         }
         chatRoom.setMemberCount(chatRoomMemberList.size());
         chatRoomRepo.save(chatRoom);
@@ -133,7 +140,9 @@ public class StompChatServiceImpl implements ChatService {
         ChatRoomMember chatRoomMember = chatRoomMemberRepo.findByUserIdAndChatRoomId(me.getId(), chatMessage.getChatRoomId());
         //나중에 에러 종류 추가
         if(chatRoomMember==null) throw new CriticalException(ErrorMessage.UNDEFINED_EXCEPTION);
+
         ChatRoom chatRoom = chatRoomRepo.findById(chatMessage.getChatRoomId()).orElseThrow();
+
 
         chatMessage.setSendUserId(me.getId());
         chatMessage.setReadCount(chatRoom.getMemberCount()-1); //자기 자신의 읽음 처리 추가
@@ -141,9 +150,12 @@ public class StompChatServiceImpl implements ChatService {
 
         chatRoomMember.setMessageId(chatMessage.getId());
         chatRoomMemberRepo.save(chatRoomMember);
-
         chatMessage.setUser(me);
 
+        Long count = chatRoomMemberRepo.countByChatRoomIdAndMessageId(chatMessage.getChatRoomId(), -1L);
+        if(count != 0){
+            chatRoomMemberMapper.updateMessageId(chatMessage.getChatRoomId(),-1L, 0L);
+        }
         kafkaProducer.send("TOPIC", new ObjectMapper().writeValueAsString(chatMessage));
         //messageSendingOperations.convertAndSend("/sub/chat/users/"+message.getRoomId(),message);
     }

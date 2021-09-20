@@ -28,12 +28,13 @@
             ,CM.ID-CRM.MESSAGE_ID AS MESSAGE_COUNT
             FROM chat_message AS CM
             JOIN (SELECT CRM.CHAT_ROOM_ID, CRM.MESSAGE_ID FROM chat_room_member AS CRM
-                WHERE CRM.USER_ID = #{user_id}) AS CRM
+                WHERE CRM.USER_ID = #{user_id} AND CRM.MESSAGE_ID != -1) AS CRM
             ON CM.CHAT_ROOM_ID = CRM.CHAT_ROOM_ID
             ORDER BY CM.ID DESC LIMIT 1 ) AS CM
         ON CR.ID = CM.CHAT_ROOM_ID
         LEFT JOIN article AS AR
         ON AR.ID = CR.ARTICLE_ID
+
         ORDER BY CM.CREATED_AT
 
     </select>
