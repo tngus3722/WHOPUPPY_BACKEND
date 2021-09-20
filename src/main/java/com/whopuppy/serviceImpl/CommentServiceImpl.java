@@ -1,66 +1,55 @@
 package com.whopuppy.serviceImpl;
 
-import com.amazonaws.services.dynamodbv2.xspec.NULL;
 import com.whopuppy.domain.CommentDTO;
+import com.whopuppy.domain.criteria.CommentCriteria;
+import com.whopuppy.enums.ErrorMessage;
+import com.whopuppy.exception.RequestInputException;
+import com.whopuppy.mapper.AnimalMapper;
 import com.whopuppy.mapper.CommentMapper;
 import com.whopuppy.service.CommentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import javax.annotation.Resource;
 import java.util.List;
 
 @Service
 public class CommentServiceImpl implements CommentService {
 
-    @Autowired
+    @Resource
     private CommentMapper commentMapper;
+    @Resource
+    private AnimalMapper animalMapper;
 
     @Override
-    public String registerComment(CommentDTO commentDTO) throws Exception{
-        int queryResult = 0;
-        queryResult = commentMapper.insertComment(commentDTO);
-
-        return (queryResult == 1) ? "댓글이 작성되었습니다." : "댓글 작성에 실패했습니다.";
+    public String registerComment(CommentDTO commentDTO) {
+        if (animalMapper.findById(commentDTO.getArticle_id()) == null)
+            throw new RequestInputException(ErrorMessage.ANIMAL_NOT_FOUND_EXCEPTION);
+        commentMapper.insertComment(commentDTO);
+        return "댓글이 작성되었습니다.";
     }
 
     @Override
-    public String updateComment(CommentDTO commentDTO, Long id) throws Exception{
-        int queryResult = 0;
+    public String updateComment(CommentDTO commentDTO, Long id){
 
-        if (commentMapper.isCommentCreated(id) == null) {
-            queryResult = commentMapper.updateComment(commentDTO, id);
-        }
-
-        return (queryResult == 1) ? "댓글이 수정되었습니다." : "댓글 수정에 실패했습니다.";
+        if (commentMapper.isCommentCreated(id) == 0)
+            throw new RequestInputException(ErrorMessage.ANIMAL_COMMENT_NOT_FOUND_EXCEPTION); //TODO 수정필요
+        commentDTO.setId(id);
+        commentMapper.updateComment(commentDTO);
+        return "댓글이 수정되었습니다.";
     }
+
     @Override
-    public String deleteComment(Long id) throws Exception{
-        int queryResult = 0;
-
-        CommentDTO commentDTO = commentMapper.selectCommentDetail(id);
-
-        if (commentDTO != null && "N".equals(commentDTO.getIs_deleted())) {
-            queryResult = commentMapper.deleteComment(id);
-        }
-        else
-            throw new Exception();
-
-
+    public String deleteComment(Long id){
+        if (commentMapper.isCommentCreated(id) == 0)
+            throw new RequestInputException(ErrorMessage.ANIMAL_COMMENT_NOT_FOUND_EXCEPTION);
+        commentMapper.deleteComment(id);
         return "댓글이 삭제되었습니다.";
     }
 
     @Override
-    public List<CommentDTO> getCommentList(Long article_id) throws Exception{
-        List<CommentDTO> commentList = Collections.emptyList();
-
-        int commentTotalCount = commentMapper.selectCommentTotalCount(article_id);
-        if (commentTotalCount > 0) {
-            commentList = commentMapper.selectCommentList(article_id);
-        }
-        else
-            throw new Exception();
-
-        return commentList;
+    public List<CommentDTO> getCommentList(CommentCriteria commentCriteria){
+        if (animalMapper.findById(commentCriteria.getArticle_id()) == null)
+            throw new RequestInputException(ErrorMessage.ANIMAL_COMMENT_NOT_FOUND_EXCEPTION);
+        return commentMapper.selectCommentList(commentCriteria);
     }
 }

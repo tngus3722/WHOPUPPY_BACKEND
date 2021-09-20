@@ -13,4 +13,5 @@ public interface SnackService {
     String uploadImage(MultipartFile multipartFile) throws Exception;
     List<SnackArticle> getAllSnackArticles(BaseCriteria baseCriteria);
     List<String> getImagesFromContent(String value);
+    SnackArticle getArticle(Long articleId);
 }

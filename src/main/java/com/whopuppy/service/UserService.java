@@ -1,11 +1,10 @@
 package com.whopuppy.service;
 
-import com.whopuppy.domain.community.Article;
 import com.whopuppy.domain.user.AuthNumber;
 import com.whopuppy.domain.user.User;
+import com.whopuppy.response.BaseResponse;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Map;
 
 public interface UserService {
@@ -21,4 +20,5 @@ public interface UserService {
     String setProfile(MultipartFile multipartFile)throws Exception;
     Long getLoginUserId();
     User getMe(String token);
+    BaseResponse updateNickname(String nickname);
 }

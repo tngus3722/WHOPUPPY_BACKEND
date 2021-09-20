@@ -85,6 +85,25 @@
         SELECT image_url FROM whopuppy.article_image WHERE article_id = #{id}
     </select>
 
+    <select id="getArticle" resultMap="whopuppy_article_resultMap">
+        SELECT
+        <include refid="whopuppy_article">
+            <property name="alias" value="a."/>
+            <property name="prefix" value="A_"/>
+        </include>,
+        <include refid="whopuppy_article_user">
+            <property name="alias" value="u."/>
+            <property name="prefix" value="U_"/>
+        </include>,
+        b.board as B_board
+        FROM whopuppy.article AS a
+        JOIN whopuppy.user AS u
+        ON a.user_id = u.id
+        JOIN whopuppy.board AS b
+        ON a.board_id = b.id
+        WHERE a.id = #{articleId} AND a.is_deleted = 0
+    </select>
+
     <select id="getArticles" resultMap="whopuppy_article_resultMap">
         SELECT
         <include refid="whopuppy_article">
@@ -108,6 +127,10 @@
                 AND a.region = #{region}
             </when>
         </choose>
+        <if test="@org.apache.commons.lang3.ObjectUtils@isNotEmpty(title)">
+            AND a.title like concat('%',#{title},'%')
+        </if>
+
         LIMIT #{cursor},#{limit}
     </select>
     <sql id ="whopuppy_article">
@@ -185,11 +208,18 @@
 
 
     <insert id="postComment">
-        INSERT INTO whopuppy.article_comment(article_id, user_id,content) VAlUES(#{article_id}, #{user_id}, #{content})
+        INSERT INTO whopuppy.article_comment(article_id, user_id,content) VAlUES(#{articleId}, #{userId}, #{content})
     </insert>
 
     <select id="getArticleComment" resultType="com.whopuppy.domain.community.ArticleComment">
-        SELECT a.id, a.article_id, a.user_id, u.nickname as user_nickname, a.content, a.created_at, a.updated_at
+        SELECT a.id,
+               a.article_id as articleId ,
+               a.user_id as userId ,
+               u.nickname as userNickname,
+               u.profile_image_url as userProfileImage,
+               a.content,
+               a.created_at as createdAt,
+               a.updated_at as updatedAt
         FROM whopuppy.article_comment AS a
         JOIN whopuppy.user AS u
         ON u.id = a.user_id
@@ -206,5 +236,25 @@
 
     <select id="getRegion" resultType="String">
         SELECT region FROM whopuppy.region;
+    </select>
+
+    <select id="getArticlesByBoardIdAndUserId" resultMap="whopuppy_article_resultMap">
+        SELECT
+        <include refid="whopuppy_article">
+            <property name="alias" value="a."/>
+            <property name="prefix" value="A_"/>
+        </include>,
+        <include refid="whopuppy_article_user">
+            <property name="alias" value="u."/>
+            <property name="prefix" value="U_"/>
+        </include>,
+        b.board as B_board
+        FROM whopuppy.article AS a
+        JOIN whopuppy.user AS u
+        ON a.user_id = u.id
+        JOIN whopuppy.board AS b
+        ON a.board_id = b.id
+        WHERE
+        a.board_id = #{boardId} AND a.is_deleted = 0 AND a.user_id = #{userId}
     </select>
 </mapper>

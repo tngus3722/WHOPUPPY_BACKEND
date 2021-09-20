@@ -31,4 +31,5 @@ public interface UserMapper {
     List<String> getAuthorityById(Long id);
     void deleteAuthority(Long id, Integer flag);
     String getRole(Long id);
+    void updateNickname(String nickname, Long id);
 }

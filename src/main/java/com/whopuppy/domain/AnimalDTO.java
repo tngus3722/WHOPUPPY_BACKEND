@@ -1,9 +1,13 @@
 package com.whopuppy.domain;
 
+import org.json.simple.JSONObject;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 @Component
 public class AnimalDTO {
+    private Long idx;
     private String sexCd;
     private String kindCd;
     private String desertionNo;
@@ -26,6 +30,41 @@ public class AnimalDTO {
     private String colorCd;
     private String happenDt;
     private String age;
+
+    public Long getIdx() {
+        return idx;
+    }
+
+    public void setIdx(Long idx) {
+        this.idx = idx;
+    }
+
+    public AnimalDTO(){}
+
+    public AnimalDTO(JSONObject obj) {
+        this.sexCd = obj.get("sexCd").toString();
+        this.kindCd = obj.get("kindCd").toString();
+        this.noticeNo = obj.get("noticeNo").toString();
+        this.careAddr = obj.get("careAddr").toString();
+        this.processState = obj.get("processState").toString();
+        this.noticeSdt = obj.get("noticeSdt").toString();
+        this.weight = obj.get("weight").toString();
+        this.chargeNm = Objects.toString(obj.get("chargeNm"), "");
+        this.careNm = obj.get("careNm").toString();
+        this.desertionNo = obj.get("desertionNo").toString();
+        this.careTel = obj.get("careTel").toString();
+        this.happenPlace = obj.get("happenPlace").toString();
+        this.officetel = obj.get("officetel").toString();
+        this.orgNm = obj.get("orgNm").toString();
+        this.filename = obj.get("filename").toString();
+        this.popfile = obj.get("popfile").toString();
+        this.noticeEdt = obj.get("noticeEdt").toString();
+        this.neuterYn = obj.get("neuterYn").toString();
+        this.specialMark = obj.get("specialMark").toString();
+        this.colorCd = obj.get("colorCd").toString();
+        this.happenDt = obj.get("happenDt").toString();
+        this.age = obj.get("age").toString();
+    }
 
     public String getSexCd() {
         return sexCd;

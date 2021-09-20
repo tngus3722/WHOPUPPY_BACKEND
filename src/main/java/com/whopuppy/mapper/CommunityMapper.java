@@ -13,6 +13,7 @@ import java.util.List;
 @Mapper
 public interface CommunityMapper {
 
+    List<Article> getArticlesByBoardIdAndUserId(Long userId, Long boardId);
     void initS3UrlHistory(Article article);
     void insertImageId(Article article);
     Long postArticle(Article article);
@@ -32,4 +33,5 @@ public interface CommunityMapper {
     Long getAuthorComment(Long id, Long commentId);
     void softDeleteComment(Long id, Long commentId);
     List<String> getRegion();
+    Article getArticle(Long articleId);
 }

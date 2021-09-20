@@ -1,12 +1,11 @@
 package com.whopuppy.config;
 
-import java.nio.charset.Charset;
-import java.util.HashMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+
+import java.nio.charset.Charset;
 
 @Configuration
 public class BeanConfig {

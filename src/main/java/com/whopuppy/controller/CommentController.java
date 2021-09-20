@@ -1,8 +1,10 @@
 package com.whopuppy.controller;
 
+import com.whopuppy.annotation.Auth;
 import com.whopuppy.annotation.ValidationGroups;
 import com.whopuppy.annotation.Xss;
 import com.whopuppy.domain.CommentDTO;
+import com.whopuppy.domain.criteria.CommentCriteria;
 import com.whopuppy.response.BaseResponse;
 import com.whopuppy.service.CommentService;
 import io.swagger.annotations.ApiOperation;
@@ -22,6 +24,7 @@ public class CommentController {
     @Resource
     private CommentService commentService;
 
+    @Auth
     @Xss
     @PostMapping
     @ApiOperation(value = "댓글 작성", notes = "댓글 작성")
@@ -32,20 +35,23 @@ public class CommentController {
 
     @GetMapping
     @ApiOperation(value = "댓글 조회", notes = "댓글 조회")
-    public ResponseEntity commentRead(@RequestParam Long article_id) throws Exception {
-        return new ResponseEntity(commentService.getCommentList(article_id), HttpStatus.OK);
+    public ResponseEntity commentRead(@ModelAttribute CommentCriteria commentCriteria) throws Exception {
+        return new ResponseEntity(commentService.getCommentList(commentCriteria), HttpStatus.OK);
     }
+
+    @Auth
     @Xss
     @PutMapping(value = "/{id}")
     @ApiOperation(value = "댓글 수정", notes = "댓글 수정")
     public ResponseEntity commentUpdate(@RequestBody @Validated(ValidationGroups.animalComment.class) CommentDTO commentDTO, @PathVariable Long id) throws Exception {
-        return new ResponseEntity(new BaseResponse(commentService.updateComment(commentDTO, id), HttpStatus.OK), HttpStatus.OK);
+        commentService.updateComment(commentDTO, id);
+        return new ResponseEntity(new BaseResponse(commentDTO.getContent(), HttpStatus.OK), HttpStatus.OK);
     }
 
+    @Auth
     @DeleteMapping(value = "/{id}")
     @ApiOperation(value = "댓글 삭제", notes = "댓글 삭제")
     public ResponseEntity commentDelete(@PathVariable Long id) throws Exception{
         return new ResponseEntity(new BaseResponse(commentService.deleteComment(id), HttpStatus.OK), HttpStatus.OK);
     }
-
 }

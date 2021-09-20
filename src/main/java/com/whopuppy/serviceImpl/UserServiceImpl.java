@@ -1,4 +1,5 @@
 package com.whopuppy.serviceImpl;
+
 import com.whopuppy.domain.user.AuthNumber;
 import com.whopuppy.domain.user.User;
 import com.whopuppy.enums.ErrorMessage;
@@ -7,6 +8,7 @@ import com.whopuppy.exception.CriticalException;
 import com.whopuppy.exception.RefreshTokenInvalidException;
 import com.whopuppy.exception.RequestInputException;
 import com.whopuppy.mapper.UserMapper;
+import com.whopuppy.response.BaseResponse;
 import com.whopuppy.service.UserService;
 import com.whopuppy.util.CoolSmsUtil;
 import com.whopuppy.util.JwtUtil;
@@ -14,6 +16,7 @@ import com.whopuppy.util.S3Util;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -49,77 +52,77 @@ public class UserServiceImpl implements UserService {
     private String accessTokenName;
 
     @Override
-    public Map<String,String> login(User user)throws Exception{
+    public Map<String, String> login(User user) throws Exception {
 
         //계정 이름으로 user를 가저옴
         User dbUser = userMapper.getUserIdFromAccount(user.getAccount());
 
         // 없는 아이디라면
-        if ( dbUser == null){
+        if (dbUser == null) {
             throw new RequestInputException(ErrorMessage.ACCOUNT_FAIL);
         }
         // 비밀번호가 틀린 경우
-        if ( !BCrypt.checkpw( user.getPassword(), dbUser.getPassword() )){
+        if (!BCrypt.checkpw(user.getPassword(), dbUser.getPassword())) {
             throw new RequestInputException(ErrorMessage.PASSWORD_FAIL);
         }
         // 로그인이 성공한 경우 , access token, refresh token 반환
-        else{
+        else {
             Map<String, String> token = new HashMap<>();
-            token.put(access_token, jwtUtil.generateToken(dbUser.getId(), dbUser.getNickname(), access_token) );
-            token.put(refresh_token, jwtUtil.generateToken(dbUser.getId(),dbUser.getNickname(),refresh_token));
+            token.put(access_token, jwtUtil.generateToken(dbUser.getId(), dbUser.getNickname(), access_token));
+            token.put(refresh_token, jwtUtil.generateToken(dbUser.getId(), dbUser.getNickname(), refresh_token));
             return token;
         }
     }
+
     @Override
-    public Map<String,Object> refresh()throws Exception{
+    public Map<String, Object> refresh() throws Exception {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String refreshToken = request.getHeader(refreshUserName);
-        int result = jwtUtil.isValid(refreshToken,1);
-        if (result == 1){ // valid하다면
-            Map<String,Object> payloads = jwtUtil.validateFormat(refreshToken,1);
-            Long id = Long.valueOf(String.valueOf( payloads.get("id")));
-            String nickname = String.valueOf( payloads.get("nickname"));
-            Map<String,Object> token = new HashMap<>();
-            token.put(access_token, jwtUtil.generateToken(id, nickname, access_token) );
-            token.put(refresh_token, jwtUtil.generateToken(id,nickname,refresh_token));
+        int result = jwtUtil.isValid(refreshToken, 1);
+        if (result == 1) { // valid하다면
+            Map<String, Object> payloads = jwtUtil.validateFormat(refreshToken, 1);
+            Long id = Long.valueOf(String.valueOf(payloads.get("id")));
+            String nickname = String.valueOf(payloads.get("nickname"));
+            Map<String, Object> token = new HashMap<>();
+            token.put(access_token, jwtUtil.generateToken(id, nickname, access_token));
+            token.put(refresh_token, jwtUtil.generateToken(id, nickname, refresh_token));
             return token;
-        }
-        else if (  result == 0 ){
+        } else if (result == 0) {
             throw new RefreshTokenInvalidException(ErrorMessage.REFRESH_FORBIDDEN_AUTH_INVALID_EXCEPTION); // REFRESH 토근에 ACCESS 토근이 들어온 경우
-        }
-        else{
+        } else {
             throw new RefreshTokenInvalidException(ErrorMessage.UNDEFINED_EXCEPTION); // pass도 expire도 invalid도 아닌경우 발생
         }
     }
+
     @Override
-    public void signUp(User user) throws Exception{
+    public void signUp(User user) throws Exception {
 
 
         // 닉네임 null,중복 체크
         if (user.getNickname() != null) {
-            if (userMapper.getUserByNickName(user.getNickname() ) != null ) {
+            if (userMapper.getUserByNickName(user.getNickname()) != null) {
                 throw new RequestInputException(ErrorMessage.NICKNAME_DUPLICATE);
             }
         }
 
         // account 를 통한 중복가입 여부 확인
-        if ( userMapper.getUserIdFromAccount(user.getAccount() ) != null ) {
+        if (userMapper.getUserIdFromAccount(user.getAccount()) != null) {
             throw new RequestInputException(ErrorMessage.ACCOUNT_ALREADY_SIGNED_UP);
         }
 
         // 번호인증을 했는가?
-        AuthNumber dbValue = userMapper.getAuthTrue(user.getAccount(),0, user.getPhone_number());
-        if (dbValue == null){
+        AuthNumber dbValue = userMapper.getAuthTrue(user.getAccount(), 0, user.getPhone_number());
+        if (dbValue == null) {
             throw new RequestInputException(ErrorMessage.SMS_NONE_AUTH_EXCEPTION);
         }
 
         // 번호인증의 secret값이 맞는가 ?
-        if ( !dbValue.getSecret().equals(user.getSecret()) ) {
+        if (!dbValue.getSecret().equals(user.getSecret())) {
             throw new RequestInputException(ErrorMessage.SMS_SECRET_INVALID_EXCEPTION);
         }
 
         // 비밀번호 암호화
-        user.setPassword( BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()) );
+        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
         userMapper.signUp(user); // 회원가입
 
 
@@ -141,12 +144,11 @@ public class UserServiceImpl implements UserService {
         // user salt = timestamp + user_id + BCrypt
         // salt 삽입
         calendar.setTime(new Date());
-        if (dbUser !=null ) {
+        if (dbUser != null) {
             String salt = dbUser.getId().toString() + calendar.getTime();
             salt = (BCrypt.hashpw(salt, BCrypt.gensalt()));
             userMapper.setSalt(salt, dbUser.getId());
-        }
-        else { // 발생 불가능
+        } else { // 발생 불가능
             throw new CriticalException(ErrorMessage.UNDEFINED_EXCEPTION);
         }
 
@@ -154,13 +156,11 @@ public class UserServiceImpl implements UserService {
 
     // 문자 발송
     @Override
-    public String sendSms(AuthNumber authNumber) throws Exception{
-
-
+    public String sendSms(AuthNumber authNumber) throws Exception {
         // 와이파이가 중간에 끊겼을 경우 ip 체크는 문제가 될수있다
         // 게정의 회원이 있는지 없는지는 폰번호로 하는 것이 올바륻 ㅏ.
         System.out.println(this.getClientIp());
-        if ( authNumber.getFlag() == 0 ){ // 회원가입 발송
+        if (authNumber.getFlag() == 0) { // 회원가입 발송
             Long id = userMapper.getUserIdFromPhoneNumber(authNumber.getPhone_number()); // 폰번호 검색
             if (id != null) { // 가입한 아이디라면
                 throw new RequestInputException(ErrorMessage.SMS_ALREADY_AUTHED); // 이미 가입했다는 에러 발생
@@ -182,12 +182,12 @@ public class UserServiceImpl implements UserService {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        calendar.set(year,month,day,0,0 ,0); // 해당 날짜의 00시 00분 00초
-        Timestamp start =  new Timestamp(calendar.getTimeInMillis());
-        calendar.set(year,month,day,23,59 ,59); // 해당 날짜의 23시 59분 59초
-        Timestamp end =  new Timestamp(calendar.getTimeInMillis());
-        Integer count = userMapper.authNumberAllSoftDeleteAfterUse(authNumber.getPhone_number(),ip,start, end);
-        if ( count >= 5 ){
+        calendar.set(year, month, day, 0, 0, 0); // 해당 날짜의 00시 00분 00초
+        Timestamp start = new Timestamp(calendar.getTimeInMillis());
+        calendar.set(year, month, day, 23, 59, 59); // 해당 날짜의 23시 59분 59초
+        Timestamp end = new Timestamp(calendar.getTimeInMillis());
+        Integer count = userMapper.authNumberAllSoftDeleteAfterUse(authNumber.getPhone_number(), ip, start, end);
+        if (count >= 5) {
             throw new RequestInputException(ErrorMessage.SMS_DAY_REQUEST_COUNT_EXCCED); // 요청한 날의 요청횟수가 5번을 초과한경우
         }
 
@@ -197,30 +197,6 @@ public class UserServiceImpl implements UserService {
         calendar.add(Calendar.DAY_OF_YEAR, -1); // 현재시간 빼기 하루
         authNumber.setExpired_at(new Timestamp(calendar.getTimeInMillis()));
         userMapper.expirePastAuthNumber(authNumber);
-
-
-        // TODO :: OPTIONAL get random string for secret String without duplicate in same User
-        /*
-        // account, phone Number, flag, ip가 같은 모든 secret 조회
-        List<String> secretHistory = userMapper.getAllAuthHistory(authNumber)
-        String secret = "";
-        boolean check = false;
-        while(true) {
-            Random rnd = new Random();
-            for (int i = 0; i < 6; i++) {
-                secret += rnd.nextInt(10);// 글자의 random numbers
-            }
-            for (int i =0; i<secretHistory.size(); i++){
-                if ( secret.equals( secretHistory.get(i))){
-                    check = true; // 중복되는 값이 있다면 true
-                }
-            }
-            if( !check ){ // 중복되는 값이 없다면 ( false 라면 )
-                break; // 루프탈출
-            }
-        }
-         */
-
 
         // 6자리의 랜덤숫자열 생성
         String secret = "";
@@ -234,7 +210,7 @@ public class UserServiceImpl implements UserService {
         authNumber.setSecret(secret);
         calendar.setTime(new Date());
         calendar.add(Calendar.MINUTE, 10); // 만료기한 10분
-        authNumber.setExpired_at(new Timestamp( (calendar.getTime()).getTime()));
+        authNumber.setExpired_at(new Timestamp((calendar.getTime()).getTime()));
 
         secret = "<#> 인증번호 [" + secret + "]\n" + authNumber.getCode();
         userMapper.setAuthNumber(authNumber);
@@ -242,8 +218,9 @@ public class UserServiceImpl implements UserService {
 
         return "sms를 발송 했습니다.";
     }
+
     @Override
-    public String configSms(AuthNumber authNumber) throws Exception{
+    public String configSms(AuthNumber authNumber) throws Exception {
 
         // 와이파이가 중간에 끊겼을 경우 ip 체크는 문제가 될수있다
         //회원가입 요청이라면
@@ -265,33 +242,33 @@ public class UserServiceImpl implements UserService {
 
         //account, flag, phoneNumber 값으로 select 해옴
         // 폰넘버 flag -- select하는게 맞는것같다
-        AuthNumber dbValue= userMapper.getSecret(authNumber);
+        AuthNumber dbValue = userMapper.getSecret(authNumber);
 
         //문자를 보낸적 없다면 email인증을 신청하라고 알림
-        if (dbValue == null ){
+        if (dbValue == null) {
             throw new RequestInputException(ErrorMessage.SMS_NONE_AUTH_EXCEPTION);
         }
 
         //request secret값이 일치하는지 확인
         AuthNumber dbAuthNumber = null;
-        if ( dbValue.getSecret().equals(authNumber.getSecret())){
+        if (dbValue.getSecret().equals(authNumber.getSecret())) {
             dbAuthNumber = dbValue;
         }
 
         // secret 값이 다르다면 인증번호를 확인하라는 알림
-        if ( dbAuthNumber == null){
+        if (dbAuthNumber == null) {
             throw new RequestInputException(ErrorMessage.SMS_SECRET_INVALID_EXCEPTION);
         }
 
         //만료시간보다 현재시간이 크다면 만료되었다고 알림
         Timestamp exp = dbAuthNumber.getExpired_at();
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        if( exp.getTime() < now.getTime()) {
+        if (exp.getTime() < now.getTime()) {
             userMapper.authNumberSoftDelete(dbAuthNumber.getId()); // 만료시 soft delete
             throw new RequestInputException(ErrorMessage.SMS_EXPIRED_AUTH_EXCEPTION);
         }
         // 만료되지않았고 / secret 같고 // account 같고 // ip 같다면 ==> is_authed = 1
-        userMapper.setIs_authed(true,dbAuthNumber.getId());
+        userMapper.setIs_authed(true, dbAuthNumber.getId());
 
         return "sms 인증에 성공했습니다.";
     }
@@ -299,17 +276,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public String nicknameCheck(String nickname) {
         String result = userMapper.getUserByNickName(nickname);
-        if ( result != null){ // 닉네임이 이미 존재 한다면
+        if (result != null)  // 닉네임이 이미 존재 한다면
             throw new RequestInputException(ErrorMessage.NICKNAME_DUPLICATE);
-        }
-        else{
+        else
             return "사용 가능한 닉네임 입니다";
-        }
+
+    }
+
+    @Override
+    public BaseResponse updateNickname(String nickname) {
+        String result = userMapper.getUserByNickName(nickname);
+        if (result != null)  // 닉네임이 이미 존재 한다면
+            throw new RequestInputException(ErrorMessage.NICKNAME_DUPLICATE);
+        else
+            userMapper.updateNickname(nickname, this.getLoginUserId());
+        return new BaseResponse("닉네임이 변경되었습니다.", HttpStatus.OK);
     }
 
     //유저의 계정과 비밀번호를 입력받아, 문자 인증이 진행 되었는지 확인 후 변경한다.
     @Override
-    public void passwordUpdate(User user)throws  Exception{
+    public void passwordUpdate(User user) throws Exception {
         User dbUser = userMapper.getUserIdFromAccount(user.getAccount());
         // 없는 아이디는 아닌지?
         if (dbUser == null) {
@@ -317,17 +303,17 @@ public class UserServiceImpl implements UserService {
         }
 
         //번호 인증 여부 체크
-        AuthNumber dbValue = userMapper.getAuthTrue(user.getAccount(),1, user.getPhone_number());
-        if ( dbValue == null ){
+        AuthNumber dbValue = userMapper.getAuthTrue(user.getAccount(), 1, user.getPhone_number());
+        if (dbValue == null) {
             throw new RequestInputException(ErrorMessage.SMS_NONE_AUTH_EXCEPTION);
         }
         // 인증번호가 틀렸는지 확인
-        if ( !dbValue.getSecret().equals(user.getSecret())){
+        if (!dbValue.getSecret().equals(user.getSecret())) {
             throw new RequestInputException(ErrorMessage.SMS_SECRET_INVALID_EXCEPTION);
         }
 
         // 비밀번호 암호화
-        user.setPassword( BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()) );
+        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
 
 
         // 비밀번호 찾기 완료 시  phoneNumber, flag, ip가 같은 이전 이력은 모두 만료 + soft delete 시킴
@@ -344,20 +330,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String accountCheck(String account){
+    public String accountCheck(String account) {
         User user = userMapper.getUserIdFromAccount(account);
-        if ( user != null ){
+        if (user != null) {
             throw new RequestInputException(ErrorMessage.ACCOUNT_ALREADY_SIGNED_UP);
-        }
-        else{
+        } else {
             return "사용 가능한 계정명 입니다.";
         }
     }
 
     // get client ip
-    private String getClientIp(){
+    private String getClientIp() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String ip =request.getHeader("X-Forwarded-For");
+        String ip = request.getHeader("X-Forwarded-For");
         if (ip == null) {
             ip = request.getHeader("Proxy-Client-IP");
         }
@@ -377,54 +362,50 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getMe(){
+    public User getMe() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String token = request.getHeader(accessTokenName);
         return getMe(token);
     }
 
     @Override
-    public User getMe(String token){
-        if ( token == null){
+    public User getMe(String token) {
+        if (token == null)
             return null;
-        }
-        else{
-            if ( jwtUtil.isValid(token,0) ==0  ){
+
+        else {
+            if (jwtUtil.isValid(token, 0) == 0) {
                 Map<String, Object> payloads = jwtUtil.validateFormat(token, 0);
                 Long id = Long.valueOf(String.valueOf(payloads.get("id")));
                 return userMapper.getMe(id);
-            }
-            else{
+            } else
                 throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
-            }
         }
     }
 
     @Override
-    public String setProfile(MultipartFile multipartFile)throws Exception{
+    public String setProfile(MultipartFile multipartFile) throws Exception {
         // multipartfile이 null인 경우
-        if ( multipartFile == null){
+        if (multipartFile == null) {
             throw new RequestInputException(ErrorMessage.MULTIPART_FILE_NULL);
         }
         //multipartfile의 content type이 jpeg, png가 아닌경우
 
-        if( !multipartFile.getContentType().equals("image/jpeg") && !multipartFile.getContentType().equals("image/png")){
+        if (!multipartFile.getContentType().equals("image/jpeg") && !multipartFile.getContentType().equals("image/png")) {
             throw new RequestInputException(ErrorMessage.MULTIPART_FILE_NOT_IMAGE);
         }
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String token = request.getHeader(accessTokenName);
-        if ( token == null){
+        if (token == null) {
             return "로그인을 해주세요";
-        }
-        else {
+        } else {
             // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
-            if ( jwtUtil.isValid(token,0) ==0 ) {
+            if (jwtUtil.isValid(token, 0) == 0) {
                 Map<String, Object> payloads = jwtUtil.validateFormat(token, 0);
                 Long id = Long.valueOf(String.valueOf(payloads.get("id")));
                 String url = s3Util.uploadObject(multipartFile);
                 userMapper.setProfile(id, url);
-            }
-            else{
+            } else {
                 throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             }
         }
@@ -432,20 +413,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Long getLoginUserId(){
+    public Long getLoginUserId() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String token = request.getHeader(accessTokenName);
-        if ( token == null){
+        if (token == null) {
             throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
-        }
-        else {
+        } else {
             // user id로 User를 select 하는것은 자유롭게 해도 좋으나, salt값은 조회,수정 하면안된다. 만약 참고할 일이있으면 정수현에게 다렉을 보내도록하자.
-            if ( jwtUtil.isValid(token,0) ==0 ) {
+            if (jwtUtil.isValid(token, 0) == 0) {
                 Map<String, Object> payloads = jwtUtil.validateFormat(token, 0);
                 Long id = Long.valueOf(String.valueOf(payloads.get("id")));
                 return id;
-            }
-            else{
+            } else {
                 throw new AccessTokenInvalidException(ErrorMessage.ACCESS_FORBIDDEN_AUTH_INVALID_EXCEPTION);
             }
         }

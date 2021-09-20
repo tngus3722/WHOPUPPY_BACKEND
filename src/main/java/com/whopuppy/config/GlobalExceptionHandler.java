@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
 		if(slack.equals(true)){
 			sendSlackNoti(e,handlerMethod);
 		}
-		return new ResponseEntity<>(baseException,HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(baseException, baseException.getHttpStatus());
 	}
 
 	private <T extends Throwable> void sendSlackNoti(T e,HandlerMethod handlerMethod) throws IOException {

@@ -1,6 +1,7 @@
 package com.whopuppy.service;
 
 import com.whopuppy.domain.CommentDTO;
+import com.whopuppy.domain.criteria.CommentCriteria;
 
 import java.util.List;
 
@@ -12,6 +13,6 @@ public interface CommentService {
 
     String deleteComment(Long id)throws Exception;
 
-    List<CommentDTO> getCommentList(Long article_id)throws Exception;
+    List<CommentDTO> getCommentList(CommentCriteria commentCriteria)throws Exception;
 
 }

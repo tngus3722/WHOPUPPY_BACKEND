@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +30,12 @@ import java.util.List;
 @Transactional
 @Service
 public class BaseCommunityImpl implements BaseCommunity {
-    @Autowired
+    @Resource
     private CommunityMapper communityMapper;
-    @Autowired
+    @Resource
     @Qualifier("UserServiceImpl")
     private UserService userService;
-    @Autowired
+    @Resource
     private S3Util s3Util;
     @Value("${default.article.image}")
     private String defaultArticleImage;
@@ -68,7 +69,7 @@ public class BaseCommunityImpl implements BaseCommunity {
     }
 
     @Override
-    public BaseResponse postArticle(Article article){
+    public Long postArticle(Article article){
 
         //이미지가 없는 경우 thumbnail에 default 이미지를 넣어준다.
         if ( article.getImages() == null || article.getImages().size() == 0){
@@ -86,18 +87,19 @@ public class BaseCommunityImpl implements BaseCommunity {
         article.setUser_id(userService.getLoginUserId());
         // article insert
         // 사진들 insert
+
         try {
             // 게시글을 작성하고, s3_url 테이블에 입력받은 url들을 사용처리한다.
             Long id = communityMapper.postArticle(article);
             article.setId(id);
             // article_image table에 삽입한다.
             communityMapper.insertImageId(article);
+            return id;
         }catch (Throwable e){
             e.printStackTrace();
             //사진이 unique 제약을 위반했을 경우.
             throw new RequestInputException(ErrorMessage.IMAGE_FORBIDDEN_EXCEPTION);
         }
-        return new BaseResponse("게시글이 작성되었습니다.", HttpStatus.CREATED);
     }
 
     @Override
@@ -115,6 +117,12 @@ public class BaseCommunityImpl implements BaseCommunity {
         return communityMapper.getArticles(articleCriteria);
     }
     //TODO 다중 이미지 업로드 함수
+
+
+    @Override
+    public Article getArticle(Long articleId) {
+        return communityMapper.getArticle(articleId);
+    }
 
     // region 입력값 검증
     private boolean regionCheck(String region){
@@ -216,7 +224,7 @@ public class BaseCommunityImpl implements BaseCommunity {
 
     public BaseResponse postComment(ArticleComment articleComment, Long id){
         // 댓글을 달 target article id set
-        articleComment.setArticle_id(id);
+        articleComment.setArticleId(id);
 
         //댓글을 달 target article이 존재하는 지 확인
         Long target = communityMapper.getTargetArticlePosted(id);
@@ -226,7 +234,7 @@ public class BaseCommunityImpl implements BaseCommunity {
 
         // 로그인한 유저 set
         Long userId = userService.getLoginUserId();
-        articleComment.setUser_id(userId);
+        articleComment.setUserId(userId);
 
         communityMapper.postComment(articleComment);
         return new BaseResponse("댓글이 작성되었습니다", HttpStatus.CREATED);
@@ -255,4 +263,8 @@ public class BaseCommunityImpl implements BaseCommunity {
         return new BaseResponse("댓글이 삭제되었습니다", HttpStatus.OK);
     }
 
+    @Override
+    public List<Article> getArticlesByBoardIdAndUserId(Long boardId) {
+        return communityMapper.getArticlesByBoardIdAndUserId(userService.getLoginUserId(),boardId);
+    }
 }
