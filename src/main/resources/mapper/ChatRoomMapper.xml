@@ -25,17 +25,23 @@
                 <property name="prefix" value=""/>
                 <property name="alias" value="CM."/>
             </include>
-            ,CM.ID-CRM.MESSAGE_ID AS MESSAGE_COUNT
-            FROM chat_message AS CM
-            JOIN (SELECT CRM.CHAT_ROOM_ID, CRM.MESSAGE_ID FROM chat_room_member AS CRM
-                WHERE CRM.USER_ID = #{user_id} AND CRM.MESSAGE_ID != -1) AS CRM
-            ON CM.CHAT_ROOM_ID = CRM.CHAT_ROOM_ID
-            ORDER BY CM.ID DESC LIMIT 1 ) AS CM
+            ,CM.ID-(select CRM.MESSAGE_ID FROM chat_room_member as CRM where CRM.chat_room_id = TCM.chat_room_id AND CRM.user_id=#{user_id}) AS MESSAGE_COUNT
+            FROM chat_message AS CM,
+                (SELECT
+                    MAX(CM.ID) AS id
+                    ,CM.chat_room_id AS chat_room_id
+                FROM chat_message AS CM
+                    JOIN (SELECT CRM.CHAT_ROOM_ID, CRM.MESSAGE_ID FROM chat_room_member AS CRM
+                    WHERE CRM.USER_ID = 3 AND CRM.MESSAGE_ID != -1) AS CRM
+                        ON CM.CHAT_ROOM_ID = CRM.CHAT_ROOM_ID
+                        GROUP BY CM.chat_room_id) AS TCM
+                        where CM.id = TCM.id
+        ) AS CM
         ON CR.ID = CM.CHAT_ROOM_ID
         LEFT JOIN article AS AR
         ON AR.ID = CR.ARTICLE_ID
 
-        ORDER BY CM.CREATED_AT
+        ORDER BY CM.UPDATED_AT DESC
 
     </select>
 
@@ -126,6 +132,8 @@
 			,${alias}CREATED_AT AS ${prefix}CREATED_AT
 			,${alias}UPDATED_AT AS ${prefix}UPDATED_AT
 	</sql>
-
-
+    <update id="update">
+        UPDATE chat_room SET updated_at = NOW()
+         WHERE id = #{id}
+    </update>
 </mapper>
