@@ -35,6 +35,7 @@ public class ChatMessageController {
         System.out.println(message.getChatRoomId());
         System.out.println(token);
         chatService.sendMessage(message, token);
+        chatService.test2(message.getChatRoomId());
         //messageSendingOperations.convertAndSend("/sub/chat/room/"+message.getRoomId(),message);
     }
 
