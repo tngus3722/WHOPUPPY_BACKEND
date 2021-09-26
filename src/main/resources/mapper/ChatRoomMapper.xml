@@ -132,8 +132,4 @@
 			,${alias}CREATED_AT AS ${prefix}CREATED_AT
 			,${alias}UPDATED_AT AS ${prefix}UPDATED_AT
 	</sql>
-    <update id="update">
-        UPDATE chat_room SET updated_at = NOW()
-         WHERE id = #{id}
-    </update>
 </mapper>
