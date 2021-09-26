@@ -156,6 +156,7 @@ public class StompChatServiceImpl implements ChatService {
         if(count != 0){
             chatRoomMemberMapper.updateMessageId(chatMessage.getChatRoomId(),-1L, 0L);
         }
+        chatRoomMapper.update(chatRoom.getId());
         kafkaProducer.send("TOPIC", new ObjectMapper().writeValueAsString(chatMessage));
         //messageSendingOperations.convertAndSend("/sub/chat/users/"+message.getRoomId(),message);
     }
