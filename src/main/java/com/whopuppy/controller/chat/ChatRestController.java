@@ -93,4 +93,13 @@ public class ChatRestController {
         chatService.readMessage(id, token);
         //messageSendingOperations.convertAndSend("/sub/chat/room/"+message.getRoomId(),message);
     }
+
+    @GetMapping("/test")
+
+    public ChatRoom test(Long id) {
+
+
+        return chatService.test2(id);
+        //messageSendingOperations.convertAndSend("/sub/chat/room/"+message.getRoomId(),message);
+    }
 }

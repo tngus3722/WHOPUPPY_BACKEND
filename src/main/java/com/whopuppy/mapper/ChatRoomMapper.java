@@ -17,5 +17,4 @@ public interface ChatRoomMapper {
 
     public List<User> getChatRoomMembers(@Param("chatRooms") List<ChatRoom> chatRooms);
 
-    void update(@Param("id") Long id);
 }

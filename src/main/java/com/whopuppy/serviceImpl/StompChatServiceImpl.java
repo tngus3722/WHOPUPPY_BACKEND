@@ -156,7 +156,13 @@ public class StompChatServiceImpl implements ChatService {
         if(count != 0){
             chatRoomMemberMapper.updateMessageId(chatMessage.getChatRoomId(),-1L, 0L);
         }
-        chatRoomMapper.update(chatRoom.getId());
+        //시간 없어서 꼼수
+        String name = chatRoom.getName();
+        chatRoom.setName("temp");
+        chatRoomRepo.save(chatRoom);
+        chatRoom.setName(name);
+        chatRoomRepo.save(chatRoom);
+
         kafkaProducer.send("TOPIC", new ObjectMapper().writeValueAsString(chatMessage));
         //messageSendingOperations.convertAndSend("/sub/chat/users/"+message.getRoomId(),message);
     }
@@ -221,5 +227,16 @@ public class StompChatServiceImpl implements ChatService {
         //리턴의 형태를 클라이언트에서 어떻게 처리시켜야할지 몰라서
         //일단 void로 마무리 -> 읽은거 카운트 안하겠다는 의미
 
+    }
+
+    @Override
+    public ChatRoom test2(Long id) {
+        ChatRoom chatRoom = chatRoomRepo.findById(id).orElseThrow();
+        String name = chatRoom.getName();
+        chatRoom.setName("temp");
+        chatRoomRepo.save(chatRoom);
+        chatRoom.setName(name);
+        chatRoomRepo.save(chatRoom);
+        return  chatRoom;
     }
 }

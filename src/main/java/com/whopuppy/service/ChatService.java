@@ -38,4 +38,6 @@ public interface ChatService {
     List<ChatMessage> findChatMessages(Long roomId, Long id, Integer count);
 
     void readMessage(Long id, String token);
+
+    ChatRoom test2(Long id);
 }
