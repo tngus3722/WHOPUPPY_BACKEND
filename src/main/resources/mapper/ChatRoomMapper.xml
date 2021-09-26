@@ -41,7 +41,7 @@
         LEFT JOIN article AS AR
         ON AR.ID = CR.ARTICLE_ID
 
-        ORDER BY CM.UPDATED_AT DESC
+        ORDER BY CR.UPDATED_AT DESC
 
     </select>
 
