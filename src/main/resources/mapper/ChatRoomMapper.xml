@@ -32,7 +32,7 @@
                     ,CM.chat_room_id AS chat_room_id
                 FROM chat_message AS CM
                     JOIN (SELECT CRM.CHAT_ROOM_ID, CRM.MESSAGE_ID FROM chat_room_member AS CRM
-                    WHERE CRM.USER_ID = 3 AND CRM.MESSAGE_ID != -1) AS CRM
+                    WHERE CRM.USER_ID = #{user_id} AND CRM.MESSAGE_ID != -1) AS CRM
                         ON CM.CHAT_ROOM_ID = CRM.CHAT_ROOM_ID
                         GROUP BY CM.chat_room_id) AS TCM
                         where CM.id = TCM.id
