@@ -25,7 +25,9 @@
                 <property name="prefix" value=""/>
                 <property name="alias" value="CM."/>
             </include>
-            ,CM.ID-(select CRM.MESSAGE_ID FROM chat_room_member as CRM where CRM.chat_room_id = TCM.chat_room_id AND CRM.user_id=#{user_id}) AS MESSAGE_COUNT
+            ,(select count(*) FROM chat_message as ACM where ACM.chat_room_id = TCM.chat_room_id
+                AND (SELECT T.message_id FROM chat_room_member AS T where T.chat_room_id = TCM.chat_room_id AND T.user_id=#{user_id})
+                    <![CDATA[  < ]]> ACM.ID   ) AS MESSAGE_COUNT
             FROM chat_message AS CM,
                 (SELECT
                     MAX(CM.ID) AS id
